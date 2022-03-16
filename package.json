@@ -1,0 +1,22 @@
+{
+  "name": "polibot",
+  "version": "0.0.1",
+  "description": "bot discordowy politechniki krakowskiej",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NexuaX/polibot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NexuaX/polibot/issues"
+  },
+  "homepage": "https://github.com/NexuaX/polibot#readme",
+  "dependencies": {
+    "discord.js": "^13.6.0"
+  }
+}
