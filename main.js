@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const Config = require("./config");
 
 const client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES"] });
-const prefix = "#polibot ";
+const prefix = Config.prefix;
 
 client.once("ready", () => {
     console.log("Melduje sie!");
