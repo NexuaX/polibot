@@ -1,0 +1,5 @@
+{
+    "token": "",
+    "prefix": "#polibot ", // zmienić na własny np. #polibot_dev1 lub całkowicie inny
+    "nlp": "off"
+}
