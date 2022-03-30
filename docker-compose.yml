@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  node:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "3000:3000"
+      
+  web:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    links:
+      - php
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    expose:
+      - 9000
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/conf.d/php.ini:/usr/local/etc/php/conf.d/php.ini
+
