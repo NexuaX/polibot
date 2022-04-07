@@ -1,10 +1,11 @@
 const { MessageEmbed, MessageAttachment} = require("discord.js");
+const { pfp } = require("../assets/urls.json");
 
 module.exports = {
     name: "team",
     description: "wypisuje twórców bota",
     execute(message, args) {
-        const profilePicture = new MessageAttachment("assets/pfp.png").setDescription("profile");
+        message.channel.sendTyping();
         const teamPicture = new MessageAttachment("assets/team.jpg").setDescription("team");
         const teammates =
             `
@@ -20,10 +21,10 @@ module.exports = {
         const teamEmbed = new MessageEmbed()
             .setTitle("PoliBot Team!")
             .setDescription("To oni nadali mi życie!")
-            .setThumbnail('attachment://pfp.png')
+            .setThumbnail(pfp)
             .addField('team', teammates)
             .setImage('attachment://team.jpg');
 
-        message.channel.send({embeds: [teamEmbed], files: [profilePicture, teamPicture]});
+        message.channel.send({embeds: [teamEmbed], files: [teamPicture]});
     }
 }
