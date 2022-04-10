@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/NexuaX/polibot#readme",
   "dependencies": {
-    "discord.js": "^13.6.0"
+    "discord.js": "^13.6.0",
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
