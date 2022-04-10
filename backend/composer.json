@@ -1,5 +1,12 @@
 {
     "autoload": {
-        "classmap": ["src/test.php"]
+        "psr-4": {
+            "Classes\\Controllers\\":"src/controllers/",
+            "Classes\\Models\\":"src/models/",
+            "Classes\\Repositories\\":"src/repositories/",
+            "Classes\\Handlers\\":"src/"
+        },
+        "classmap": ["Router.php","DBHandler.php"],
+        "files": ["config.php"]
     }
 }
