@@ -1,4 +1,7 @@
-const {MessageEmbed} = require("discord.js");
+const {MessageEmbed, Util} = require("discord.js");
+const {backend} = require("../config.json");
+const fetch = require("node-fetch");
+
 const fruitEmoji = [
     "🍉", "🍊", "🍋", "🥭", "🍐", "🍑", "🥝", "🍓"
 ];
@@ -6,7 +9,7 @@ const fruitEmoji = [
 module.exports = {
     name: 'setup',
     description: "ustaw role i parametry serwera",
-    execute(message, args) {
+    async execute(message, args) {
         if (args[1] === "chairman") {
 
             const role = message.guild.roles.cache.find(role => role.name === "chairman");
@@ -24,23 +27,64 @@ module.exports = {
 
         } else if (args[1] === "server") {
 
-            // api call aby zapisać guild_id => faculty
-            message.channel.send("Jeszcze niezaimplementowane.")
+            const data = {
+                guild_id: message.guildId,
+                faculty: args[2],
+                year: args[3],
+                department: args[4],
+            };
+
+            message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
+
+            const res = fetch(backend + "/setupServer", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            }).then(response => {
+                return response.json()
+            }).then(json => {
+                console.log(json);
+            }).catch(error => {
+                // :D
+                return "Ok";
+            });
+
+            console.log(res);
 
         } else if (args[1] === "groups") {
 
-            const groupsEmbed = new MessageEmbed()
-                .setTitle("Wybierz swoją grupe!")
-                .setDescription("Ustawienie grupy pozoli Ci korzystać z wielu funkcjonalności bota");
+            const groupsStringArray = [];
             for (let i = 2; i < args.length; i++) {
-                groupsEmbed.addField('\u200B', `${fruitEmoji[i-2]} : ${args[i]}`);
+                groupsStringArray.push(`${fruitEmoji[i - 2]} : - ${args[i]}`);
             }
-            message.channel.send({embeds: [groupsEmbed]})
-                .then(async sendMessage => {
-                    for (let i = 0; i < args.length - 2; i++) {
-                        await sendMessage.react(fruitEmoji[i]);
-                    }
-                }).catch();
+            const groupsString = groupsStringArray.join("\n\n");
+
+            const groupsEmbed = new MessageEmbed()
+                .setColor("GREEN")
+                .setTitle("Wybierz swoją grupe!")
+                .setDescription("Ustawienie grupy pozoli Ci korzystać z wielu funkcjonalności bota")
+                .addField("\u200b", groupsString);
+
+            const data = {
+                guild_id: message.guildId,
+                message_id: "",
+                roles: []
+            };
+
+            const sendMessage = await message.channel.send({embeds: [groupsEmbed]});
+
+            data.message_id = sendMessage.id;
+            for (let i = 0; i < args.length - 2; i++) {
+                const reaction = await sendMessage.react(fruitEmoji[i]);
+                data.roles.push({
+                    role_name: args[i + 2],
+                    emoji_name: reaction.emoji.name
+                });
+            }
+
+            message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
 
         }
     }
