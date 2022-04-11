@@ -17,10 +17,10 @@
 
             $repository = new SetupCommandRepository();
             if(!$repository->guildExists($this->data->guild_id)){
-                $this->repository->addNewGuild($this->data);
+                $repository->addNewGuild($this->data);
             }
             else{
-                $this->repository->updateGuild($this->data);
+                $repository->updateGuild($this->data);
             }
             $this->responseOk();
         }
