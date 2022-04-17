@@ -58,7 +58,7 @@
 
             echo json_encode([
                 'code'      => '200',
-                'response'  => json_encode($response)
+                'response'  => $response
             ]);
         }
 

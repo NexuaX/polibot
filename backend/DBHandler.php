@@ -25,7 +25,7 @@ class DBHandler{
             if(isset($this->conn))
                 return $this->conn;
             try{
-                var_dump("pgsql:host=$this->host port=$this->port dbname=$this->dbname",$this->user, $this->passwd);
+                // var_dump("pgsql:host=$this->host port=$this->port dbname=$this->dbname",$this->user, $this->passwd);
                 $conn_config = "pgsql:host=$this->host port=$this->port dbname=$this->dbname";
                 $this->conn = new \PDO(
                     $conn_config,

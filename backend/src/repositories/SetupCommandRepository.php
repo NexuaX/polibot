@@ -11,7 +11,7 @@
             $query->execute();
             
             $result = $query->fetch(\PDO::FETCH_ASSOC);
-            var_dump($result);
+            // var_dump($result);
             if(!$result)
                 return false;
 
@@ -31,7 +31,7 @@
             $query->execute();
             $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-            var_dump($result);
+            // var_dump($result);
             if(!$result)
                 return false;
             
@@ -50,7 +50,7 @@
             $query->execute();
             $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-            var_dump($result);
+            // var_dump($result);
             if(!$result)
                 return false;
             
@@ -67,7 +67,7 @@
             $query->execute();
             $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-            var_dump($result);
+            // var_dump($result);
             if(!$result)
                 return false;
             
@@ -84,7 +84,7 @@
             $query->execute();
             $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-            var_dump($result);
+            // var_dump($result);
             if(!$result)
                 return false;
             
@@ -103,7 +103,7 @@
             $insertSql = rtrim($insertSql,", ");
 
             $query = $this->dbref->connect()->prepare(
-                "INSERT INTO public.group_server (guild_id, message_id, role_name, emoji_name) 
+                "INSERT INTO public.group_server (guild_id, message_id, role_name, emoji_name) VALUES 
                  $insertSql
                  "
             );
@@ -111,7 +111,7 @@
             $query->execute();
             $result = $query->fetch(\PDO::FETCH_ASSOC);
 
-            var_dump($result);
+            // var_dump($result);
             if(!$result)
                 return false;
             
