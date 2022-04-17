@@ -5,3 +5,4 @@ package-lock.json
 config.json
 /backend/vendor/*
 /backend/config.php
+/backend/composer.lock
