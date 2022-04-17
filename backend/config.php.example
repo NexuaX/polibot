@@ -1,0 +1,6 @@
+<?php
+    const PORT = xxx;
+    const USERNAME = 'xx';
+    const PASSWORD = 'xx';
+    const HOST = 'xx';
+    const DATABASE = 'xx';
