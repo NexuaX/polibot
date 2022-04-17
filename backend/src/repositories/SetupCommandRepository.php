@@ -6,7 +6,7 @@
         //DO SPRAWDZENIA NIE WIEM CZY COKOLWIEK DZIALA PISZE NA WYCZUCIE
         public function guildExists(string $guildID) : bool{
             $query = $this->dbref->connect()->prepare(
-                "SELECT * from public.group_server WHERE guild_id='$guildID'"
+                "SELECT * from public.setup_server WHERE guild_id='$guildID'"
             );
             $query->execute();
             
@@ -60,8 +60,7 @@
         public function groupAssignmentExist($assigmentDetails){
             $query = $this->dbref->connect()->prepare(
                 "SELECT * FROM public.group_server 
-                 WHERE guild_id='$assigmentDetails->guild_id' 
-                 AND message_id='$assigmentDetails->message_id'"
+                 WHERE guild_id='$assigmentDetails->guild_id'"
             );
 
             $query->execute();
@@ -76,9 +75,8 @@
 
         public function removeGroupAssignment($assigmentDetails){
             $query = $this->dbref->connect()->prepare(
-                "DELETE * FROM public.group_server 
-                 WHERE guild_id='$assigmentDetails->guild_id' 
-                 AND message_id='$assigmentDetails->message_id'"
+                "DELETE FROM public.group_server 
+                 WHERE guild_id='$assigmentDetails->guild_id'"
             );
             
             $query->execute();
