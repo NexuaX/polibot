@@ -1,4 +1,4 @@
-const {MessageEmbed, Util} = require("discord.js");
+const {MessageEmbed} = require("discord.js");
 const {backend} = require("../config.json");
 const fetch = require("node-fetch");
 
@@ -34,24 +34,27 @@ module.exports = {
                 department: args[4],
             };
 
+            // TODO usunąć w produkcji
             message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
 
-            const res = fetch(backend + "/setupServer", {
+            const response = await fetch(backend + "/setupServer", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(data)
-            }).then(response => {
-                return response.json()
-            }).then(json => {
-                console.log(json);
-            }).catch(error => {
-                // :D
-                return "Ok";
             });
 
-            console.log(res);
+            const jsonResponse = await response.json();
+
+            // TODO usunąć w produkcji
+            message.channel.send("```json\n" + JSON.stringify(jsonResponse, null, 2) + "\n```");
+
+            if (jsonResponse.code === '200') {
+                message.channel.send("Success.");
+            } else {
+                message.channel.send("Failed.");
+            }
 
         } else if (args[1] === "groups") {
 
@@ -84,7 +87,27 @@ module.exports = {
                 });
             }
 
+            // TODO usunąć w produkcji
             message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
+
+            const response = await fetch(backend + "/setupGroups", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            const jsonResponse = await response.json();
+
+            // TODO usunąć w produkcji
+            message.channel.send("```json\n" + JSON.stringify(jsonResponse, null, 2) + "\n```");
+
+            if (jsonResponse.code === '200') {
+                message.channel.send("Success.");
+            } else {
+                message.channel.send("Failed.");
+            }
 
         }
     }

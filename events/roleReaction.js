@@ -13,28 +13,67 @@ client.on("messageReactionAdd", async (reaction, user) => {
         message_id: reaction.message.id
     }
 
-    // const response = await fetch(backend + "/getReactionMessage", {
-    //     headers: {
-    //         "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(data)
-    // });
+    let response = await fetch(backend + "/getReactionMessage", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
 
-    const response = {
-        guild_id: "dummy",
-        message_id: "961724327613567026",
-        role: {
-            role_name: "grupa1",
-            emoji_name: "🍉"
+    response = await response.json();
+
+    if (reaction.message.id === response.response.message_id) {
+        let reactionRole = null;
+        for (const role of response.response.roles) {
+            if (reaction.emoji.name === role.emoji_name) {
+                reactionRole = reaction.message.guild.roles.cache.find(frole => frole.name === role.role_name);
+                break;
+            }
         }
-    };
+        if (!reactionRole) return;
 
-    if (reaction.message.id === response.message_id) {
-        const role = reaction.message.guild.roles.cache.find(role => role.name === response.role.role_name);
-        reaction.message.guild.members.cache.get(user.id).roles.add(role).catch(error => console.log(error));
+        reaction.message.guild.members.cache.get(user.id).roles.add(reactionRole).catch(error => console.log(error));
 
-        reaction.message.channel.send(`Student ${user} dołączył do ${role}`);
+        reaction.message.channel.send(`Student ${user} dołączył do ${reactionRole}`);
     }
 
-    console.log("roleReaction!");
+});
+
+client.on("messageReactionRemove", async (reaction, user) => {
+
+    if (reaction.partial) await reaction.fetch();
+    if (user.partial) await user.fetch();
+    if (user.bot) return;
+
+    const data = {
+        guild_id: reaction.message.guildId,
+        message_id: reaction.message.id
+    }
+
+    let response = await fetch(backend + "/getReactionMessage", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    response = await response.json();
+
+    if (reaction.message.id === response.response.message_id) {
+        let reactionRole = null;
+        for (const role of response.response.roles) {
+            if (reaction.emoji.name === role.emoji_name) {
+                reactionRole = reaction.message.guild.roles.cache.find(frole => frole.name === role.role_name);
+                break;
+            }
+        }
+        if (!reactionRole) return;
+
+        reaction.message.guild.members.cache.get(user.id).roles.remove(reactionRole).catch(error => console.log(error));
+
+        reaction.message.channel.send(`Student ${user} opuścił ${reactionRole}`);
+    }
+
 });
