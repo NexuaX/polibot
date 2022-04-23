@@ -16,15 +16,19 @@ async function commandHandler(message, args) {
     }
 
     const [ name, who, when, where ] = args;
+
     const whenDate = new Date(when);
+
     const data = {
-        guild_id: message.guild_id,
+        guild_id: message.guildId,
         name: name,
-        who: message.mentions.roles.first().id,
+        who: "",
         when: when,
         where: message.mentions.channels.first().id,
         message: ""
     };
+
+    data.who = message.mentions.everyone ? message.guild.roles.everyone.id : message.mentions.roles.first().id;
 
     message.reply("Teraz podaj wiadomość przypomnienia.");
 
