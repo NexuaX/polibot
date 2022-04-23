@@ -10,10 +10,11 @@ client.on("messageReactionAdd", async (reaction, user) => {
 
     const data = {
         guild_id: reaction.message.guildId,
-        message_id: reaction.message.id
+        message_id: reaction.message.id,
+        emoji_name: reaction.emoji.name
     }
 
-    let response = await fetch(backend + "/getReactionMessage", {
+    let response = await fetch(backend + "/getReactionRole", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -24,13 +25,8 @@ client.on("messageReactionAdd", async (reaction, user) => {
     response = await response.json();
 
     if (reaction.message.id === response.response.message_id) {
-        let reactionRole = null;
-        for (const role of response.response.roles) {
-            if (reaction.emoji.name === role.emoji_name) {
-                reactionRole = reaction.message.guild.roles.cache.find(frole => frole.name === role.role_name);
-                break;
-            }
-        }
+        const reactionRole = reaction.message.guild.roles.cache.find(role => role.name === response.response.role_name);
+
         if (!reactionRole) return;
 
         reaction.message.guild.members.cache.get(user.id).roles.add(reactionRole).catch(error => console.log(error));
@@ -48,10 +44,11 @@ client.on("messageReactionRemove", async (reaction, user) => {
 
     const data = {
         guild_id: reaction.message.guildId,
-        message_id: reaction.message.id
+        message_id: reaction.message.id,
+        emoji_name: reaction.emoji.name
     }
 
-    let response = await fetch(backend + "/getReactionMessage", {
+    let response = await fetch(backend + "/getReactionRole", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -62,13 +59,8 @@ client.on("messageReactionRemove", async (reaction, user) => {
     response = await response.json();
 
     if (reaction.message.id === response.response.message_id) {
-        let reactionRole = null;
-        for (const role of response.response.roles) {
-            if (reaction.emoji.name === role.emoji_name) {
-                reactionRole = reaction.message.guild.roles.cache.find(frole => frole.name === role.role_name);
-                break;
-            }
-        }
+        const reactionRole = reaction.message.guild.roles.cache.find(role => role.name === response.response.role_name);
+
         if (!reactionRole) return;
 
         reaction.message.guild.members.cache.get(user.id).roles.remove(reactionRole).catch(error => console.log(error));
