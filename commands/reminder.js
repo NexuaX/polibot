@@ -1,3 +1,6 @@
+const {backend} = require('../config.json');
+const fetch = require("node-fetch");
+
 module.exports = {
     name: 'reminder',
     description: "pomagam przypomnieć o różnych sprawach",
@@ -15,16 +18,16 @@ async function commandHandler(message, args) {
         return;
     }
 
-    const [ name, who, when, where ] = args;
+    const [ name, who, deadline, channel ] = args;
 
-    const whenDate = new Date(when);
+    const deadlineDate = new Date(deadline);
 
     const data = {
         guild_id: message.guildId,
         name: name,
         who: "",
-        when: when,
-        where: message.mentions.channels.first().id,
+        deadline: deadline,
+        channel: message.mentions.channels.first().id,
         message: ""
     };
 
@@ -53,7 +56,22 @@ async function commandHandler(message, args) {
 
         // TODO wysłanie do bazy
         // select to_char(timestamp '2022-04-20T14:45', 'DD/MM/YYYY HH24:MI')
-        message.reply("Przypomnienie ustawione.");
+
+        const response = await fetch(backend + '/setReminder', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const responseData = await response.json();
+
+        if (responseData.code === "200") {
+            message.reply("Przypomnienie ustawione.");
+        } else {
+            message.reply("Failed.");
+        }
 
         // TODO usunąć w produkcji
         message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");

@@ -19,7 +19,7 @@ class ReminderRepository extends Repository {
 
         $query = $this->dbref->connect()->prepare(
             "INSERT INTO public.reminders 
-                    (guild_id, name, who, deadline,channel, message, reminders_amount)
+                    (guild_id, name, who, deadline, channel, message, reminders_amount)
                     values('$data->guild_id',
                            '$data->name',
                            '$data->who',
