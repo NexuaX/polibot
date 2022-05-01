@@ -1,7 +1,13 @@
-const { MessageEmbed, MessageActionRow, MessageButton} = require("discord.js");
+const {MessageEmbed, MessageActionRow, MessageButton} = require("discord.js");
+const fetch = require("node-fetch");
+const formData = require("form-data");
+const {backend} = require("../config.json");
 
 const embeds = []
 const pages = {}
+let count
+let teachers = []
+let offset = 1
 
 module.exports = {
     name: "prowadzacy",
@@ -10,103 +16,129 @@ module.exports = {
         const teacherName = args.slice(1).join(' ')
         if (!areArgsValid(args, message, teacherName)) return
 
-        const teacherData = JSON.parse(getTeacherData(teacherName))
-        const phoneNumbers = teacherData.phoneNumbers.join('\n')
-        const emails = teacherData.emails.join('\n')
-        const parentUnits = teacherData.parentUnits.join('\n')
+        console.log("jestem tu")
 
-        for (let a = 0; a < 4; a++) {
-            const teacherEmbed = new MessageEmbed()
-                .setTitle('Dane prowadzącego')
-                .setDescription(`Page: ${a + 1}`)
-                .addFields(
-                    {name: 'Imię i nazwisko', value: `${teacherData.name} ${teacherData.surname}`},
-                    {name: 'Telefon', value: phoneNumbers},
-                    {name: 'E-mail', value: emails},
-                    {name: 'Jednostki nadrzędne', value: parentUnits},
-                    {name: 'Jednostka zatrudnienia', value: teacherData.employmentUnit}
-                )
-            if (teacherData.website) {
-                teacherEmbed.addField('Strona internetowa', teacherData.website)
-            }
-            embeds.push(teacherEmbed)
+        const teacherData = await getTeacherData(teacherName, offset)
+        teachers = teacherData.list
+        count = teacherData.count
+
+        while (teachers.length !== count) {
+            offset++;
+            const moreTeacherData = await getTeacherData(teacherName, offset)
+            teachers.push(...moreTeacherData.list)
         }
-
-        const id = message.author.id
-        pages[id] = pages[id] || 0
-        const embed = embeds[pages[id]]
-        let reply
-        let collector
-
-        const filter = (i) => i.user.id === message.author.id
-        const time = 1000 * 60 * 5
-
-        if (message) {
-            reply = await  message.reply({
-                embeds: [embed],
-                components: [getRow(id)]
-            })
-
-            collector = reply.createMessageComponentCollector({filter, time})
-        } else {
-            message.interaction.reply({
-                ephemeral: true,
-                embeds: [embed],
-                components: [getRow(id)]
-            })
-
-            collector = message.channel.createMessageComponentCollector({filter, time})
-        }
-
-        collector.on('collect', (btnInt) => {
-            if (!btnInt) {
-                return
-            }
-
-            btnInt.deferUpdate().then(r => {})
-
-            if (
-                btnInt.customId !== 'prev_embed' &&
-                btnInt.customId !== 'next_embed'
-            ) {
-                return
-            }
-
-            if (btnInt.customId === 'prev_embed' && pages[id] > 0) {
-                --pages[id]
-            } else if (
-                btnInt.customId === 'next_embed' &&
-                pages[id] < embed.length - 1
-            ) {
-                ++pages[id]
-            }
-
-            if (reply) {
-                reply.edit({
-                    embeds: [embeds[pages[id]]],
-                    components: [getRow(id)]
-                }).then(r => {})
-            } else {
-                message.interaction.editReply({
-                    embeds: [embeds[pages[id]]],
-                    components: [getRow(id)]
-                }).then(r => {})
-            }
-        })
+        await handleTeacherData(teachers, message)
     }
 }
 
-function getTeacherData(teacherName) {
-    const obj = {
-        name: 'Jan',
-        surname: 'Nowak',
-        phoneNumbers: ['123456456', '466444875'],
-        emails: ['jan.nowak@pk.edu.pl', 'jan.nowak2@pk.edu.pl'],
-        parentUnits: ['Wydział Architektury (A)'],
-        employmentUnit: 'Katedra Informatyki (F-1)',
-        website: 'https://wp.pl'
+function getTeacherData(teacherName, offset) {
+
+    const teacherFormData = new formData();
+    teacherFormData.append('id', teacherName);
+    teacherFormData.append('ou', '');
+    teacherFormData.append('child', 1);
+    teacherFormData.append('wybor_szukaj', 1);
+    teacherFormData.append('offset', offset);
+
+    return fetch("https:spispracownikow.pk.edu.pl/data.php", {
+        method: "POST",
+        body: teacherFormData
+    }).then(function (response) {
+        return response.json();
+    }).then(function (data) {
+        return data
+    }).catch(error => console.warn(error))
+}
+
+async function handleTeacherData(teacherList, message) {
+
+    teacherList.forEach(function (teacher, i){
+        const name = `${(teacher.pleduPersonDegree === "---") ? "" : teacher.pleduPersonDegree} ${teacher.givenName} ${teacher.sn}`
+        const phoneNumbers = Array.from(teacher.phone).join(', ')
+        const emails = Array.from(teacher.mails).join(', ')
+        const parents = teacher.ou
+        const info = teacher.description
+
+        const teacherEmbed = new MessageEmbed()
+            .setTitle('Dane prowadzącego')
+            .setThumbnail('https://www.pk.edu.pl/images/PK18/promocja/KIW_2020/SYGNET_PK/PK_SYGNET_RGB.jpg')
+            .setFooter({ text: `Strona: ${i + 1}`})
+
+        if(Boolean(name)) teacherEmbed.addField('Imię i nazwisko', name)
+        if(Boolean(phoneNumbers)) teacherEmbed.addField('Telefon', phoneNumbers)
+        if(Boolean(emails)) teacherEmbed.addField('E-mail', emails)
+        if(Boolean(parents)) teacherEmbed.addField('Jednostki nadrzędne', parents)
+        if(Boolean(parents)) teacherEmbed.addField('Jednostka zatrudnienia', parents)
+        if(Boolean(info)) teacherEmbed.addField('Informacje własne pracownika', info)
+
+        embeds.push(teacherEmbed)
+    })
+
+
+    const id = message.author.id
+    pages[id] = pages[id] || 0
+    const embed = embeds[pages[id]]
+    let reply
+    let collector
+
+    const filter = (i) => i.user.id === message.author.id
+    const time = 1000 * 60 * 5
+
+    if (message) {
+        reply = await message.reply({
+            embeds: [embed],
+            components: [getRow(id)]
+        })
+
+        collector = reply.createMessageComponentCollector({filter, time})
+    } else {
+        message.interaction.reply({
+            ephemeral: true,
+            embeds: [embed],
+            components: [getRow(id)]
+        })
+
+        collector = message.channel.createMessageComponentCollector({filter, time})
     }
-    return JSON.stringify(obj)
+
+    collector.on('collect', (btnInt) => {
+        if (!btnInt) {
+            return
+        }
+
+        btnInt.deferUpdate().then(r => {
+        })
+
+        if (
+            btnInt.customId !== 'prev_embed' &&
+            btnInt.customId !== 'next_embed'
+        ) {
+            return
+        }
+
+        if (btnInt.customId === 'prev_embed' && pages[id] > 0) {
+            --pages[id]
+        } else if (
+            btnInt.customId === 'next_embed' &&
+            pages[id] < embed.length - 1
+        ) {
+            ++pages[id]
+        }
+
+        if (reply) {
+            reply.edit({
+                embeds: [embeds[pages[id]]],
+                components: [getRow(id)]
+            }).then(r => {
+            })
+        } else {
+            message.interaction.editReply({
+                embeds: [embeds[pages[id]]],
+                components: [getRow(id)]
+            }).then(r => {
+            })
+        }
+    })
 }
 
 const getRow = (id) => {
@@ -130,11 +162,11 @@ const getRow = (id) => {
 }
 
 function areArgsValid(args, message, teacherName) {
-    if(args.length < 2) {
+    if (args.length < 2) {
         message.reply({content: 'Podaj imię i/lub nazwisko prowadzącego.', ephemeral: true});
         return false
     }
-    if(teacherName.length < 3){
+    if (teacherName.length < 3) {
         message.reply({content: 'Podaj minimum 3 znaki.', ephemeral: true});
         return false
     }
