@@ -5,9 +5,6 @@ const {backend} = require("../config.json");
 
 const embeds = []
 const pages = {}
-let count
-let teachers = []
-let offset = 1
 
 module.exports = {
     name: "prowadzacy",
@@ -16,7 +13,9 @@ module.exports = {
         const teacherName = args.slice(1).join(' ')
         if (!areArgsValid(args, message, teacherName)) return
 
-        console.log("jestem tu")
+        let count
+        let teachers = []
+        let offset = 1
 
         const teacherData = await getTeacherData(teacherName, offset)
         teachers = teacherData.list
@@ -50,11 +49,18 @@ function getTeacherData(teacherName, offset) {
     }).catch(error => console.warn(error))
 }
 
+function getFormattedPhoneNumbers(phoneNumbers) {
+    phoneNumbers.forEach(function(part, index) {
+        if(this[index].length === 7) this[index] = `12 ${this[index]}`;
+    }, phoneNumbers)
+    return phoneNumbers.join(', ')
+}
+
 async function handleTeacherData(teacherList, message) {
 
     teacherList.forEach(function (teacher, i){
         const name = `${(teacher.pleduPersonDegree === "---") ? "" : teacher.pleduPersonDegree} ${teacher.givenName} ${teacher.sn}`
-        const phoneNumbers = Array.from(teacher.phone).join(', ')
+        const phoneNumbers = getFormattedPhoneNumbers(Array.from(teacher.phone))
         const emails = Array.from(teacher.mails).join(', ')
         const parents = teacher.ou
         const info = teacher.description
