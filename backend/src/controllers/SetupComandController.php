@@ -49,12 +49,28 @@
             ]);
 
             $repository = new SetupCommandRepository();
-            $groups = $repository->getGroupAssignment($this->data);
+            $groups = $repository->getGroupAssignmentMessage($this->data);
             $response = [
                 'guild_id'  =>$this->data->guild_id,
                 'message_id'=>$this->data->message_id,
                 'roles' => $groups
             ];
+
+            echo json_encode([
+                'code'      => '200',
+                'response'  => $response
+            ]);
+        }
+
+        public function getReactionRole() : void {
+            $this->validateFields([
+                'guild_id',
+                'message_id',
+                'emoji_name'
+            ]);
+
+            $repository = new SetupCommandRepository();
+            $response = $repository->getGroupAssignmentRole($this->data);
 
             echo json_encode([
                 'code'      => '200',

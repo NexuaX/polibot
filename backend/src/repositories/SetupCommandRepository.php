@@ -6,7 +6,7 @@
         //DO SPRAWDZENIA NIE WIEM CZY COKOLWIEK DZIALA PISZE NA WYCZUCIE
         public function guildExists(string $guildID) : bool{
             $query = $this->dbref->connect()->prepare(
-                "SELECT * from public.setup_server WHERE guild_id='$guildID'"
+                "SELECT * from public.guilds WHERE guild_id='$guildID'"
             );
             $query->execute();
             
@@ -21,7 +21,7 @@
         public function addNewGuild(object $guildDetails) : bool {
 
             $query = $this->dbref->connect()->prepare(
-                "INSERT INTO public.setup_server (guild_id, faculty, year, department)
+                "INSERT INTO public.guilds (guild_id, faculty, year, department)
                  values ('$guildDetails->guild_id', 
                          '$guildDetails->faculty', 
                          '$guildDetails->year', 
@@ -40,7 +40,7 @@
 
         public function updateGuild(object $guildDetails) : bool {
             $query = $this->dbref->connect()->prepare(
-                "UPDATE public.setup_server 
+                "UPDATE public.guilds
                  SET faculty='$guildDetails->faculty',
                      year='$guildDetails->year',
                      department='$guildDetails->department'
@@ -59,8 +59,8 @@
 
         public function groupAssignmentExist($assigmentDetails){
             $query = $this->dbref->connect()->prepare(
-                "SELECT * FROM public.group_server 
-                 WHERE guild_id='$assigmentDetails->guild_id'"
+                "select guild_id, message_id from public.group_panels
+                WHERE guild_id='$assigmentDetails->guild_id'"
             );
 
             $query->execute();
@@ -75,8 +75,8 @@
 
         public function removeGroupAssignment($assigmentDetails){
             $query = $this->dbref->connect()->prepare(
-                "DELETE FROM public.group_server 
-                 WHERE guild_id='$assigmentDetails->guild_id'"
+                "delete from public.group_panels
+                where guild_id='$assigmentDetails->guild_id'"
             );
             
             $query->execute();
@@ -95,15 +95,29 @@
             if(empty($assigmentDetails->roles))
                 return false;
 
+            $query = $this->dbref->connect()->prepare(
+                "INSERT INTO public.group_panels (guild_id, message_id)
+                VALUES ('$assigmentDetails->guild_id', '$assigmentDetails->message_id')
+                returning group_panel_id"
+            );
+
+            $query->execute();
+            $result = $query->fetch(\PDO::FETCH_ASSOC);
+
+            // var_dump($result);
+            if(!$result)
+                return false;
+
+            $id = $result['group_panel_id'];
+
             foreach($assigmentDetails->roles as $role){
-                $insertSql .= "('$assigmentDetails->guild_id','$assigmentDetails->message_id','$role->role_name','$role->emoji_name'),";
+                $insertSql .= "('$id','$role->role_name','$role->emoji_name'),";
             }
             $insertSql = rtrim($insertSql,", ");
 
             $query = $this->dbref->connect()->prepare(
-                "INSERT INTO public.group_server (guild_id, message_id, role_name, emoji_name) VALUES 
-                 $insertSql
-                 "
+                "INSERT INTO public.group_reactions (group_panel_id, role_name, emoji_name)
+                VALUES $insertSql"
             );
             
             $query->execute();
@@ -116,11 +130,12 @@
             return true;
         }
 
-        public function getGroupAssignment($assigmentDetails) : ?array{
+        public function getGroupAssignmentMessage($assigmentDetails) : ?array{
             $query = $this->dbref->connect()->prepare(
-                "SELECT * FROM public.group_server 
-                 WHERE guild_id='$assigmentDetails->guild_id' 
-                 AND message_id='$assigmentDetails->message_id'"
+                "SELECT * FROM public.group_reactions
+                join group_panels gp on gp.group_panel_id = group_reactions.group_panel_id
+                WHERE guild_id='$assigmentDetails->guild_id' 
+                AND message_id='$assigmentDetails->message_id'"
             );
             $roles = [];
             $query->execute();
@@ -135,5 +150,23 @@
                 return null;
                 
             return $roles;
+        }
+
+        public function getGroupAssignmentRole($assigmentDetails) {
+            $query = $this->dbref->connect()->prepare(
+                "SELECT guild_id, message_id, role_name, emoji_name FROM public.group_reactions
+                join group_panels gp on gp.group_panel_id = group_reactions.group_panel_id
+                WHERE guild_id='$assigmentDetails->guild_id' 
+                AND message_id='$assigmentDetails->message_id'
+                AND emoji_name='$assigmentDetails->emoji_name'"
+            );
+
+            $query->execute();
+            $result = $query->fetch(\PDO::FETCH_ASSOC);
+
+            if(!$result)
+                return false;
+
+            return $result;
         }
     }
