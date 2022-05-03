@@ -79,6 +79,7 @@ async function handleTeacherData(teacherList, message) {
         const teacherEmbed = new MessageEmbed()
             .setTitle('Dane prowadzącego')
             .setThumbnail('https://www.pk.edu.pl/images/PK18/promocja/KIW_2020/SYGNET_PK/PK_SYGNET_RGB.jpg')
+            .setColor("#013571")
             .setFooter({ text: `Strona: ${i + 1}`})
 
         if(Boolean(name)) teacherEmbed.addField('Imię i nazwisko', name)
