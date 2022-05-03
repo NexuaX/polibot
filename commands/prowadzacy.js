@@ -56,13 +56,24 @@ function getFormattedPhoneNumbers(phoneNumbers) {
     return phoneNumbers.join(', ')
 }
 
+function getFormattedParents(parentsAndEmploymentInfo) {
+    const parents = parentsAndEmploymentInfo.slice(1)
+    parents.forEach(function(part, index) {
+        this[index] = this[index].slice(3);
+    }, parents)
+
+    return parents.join(", ")
+}
+
 async function handleTeacherData(teacherList, message) {
 
     teacherList.forEach(function (teacher, i){
         const name = `${(teacher.pleduPersonDegree === "---") ? "" : teacher.pleduPersonDegree} ${teacher.givenName} ${teacher.sn}`
         const phoneNumbers = getFormattedPhoneNumbers(Array.from(teacher.phone))
         const emails = Array.from(teacher.mails).join(', ')
-        const parents = teacher.ou
+        const parentsAndEmploymentInfo = teacher.ou.split(",").slice(0, -4)
+        const parents = getFormattedParents(parentsAndEmploymentInfo)
+        const employment = parentsAndEmploymentInfo.shift().slice(3)
         const info = teacher.description
 
         const teacherEmbed = new MessageEmbed()
@@ -74,7 +85,7 @@ async function handleTeacherData(teacherList, message) {
         if(Boolean(phoneNumbers)) teacherEmbed.addField('Telefon', phoneNumbers)
         if(Boolean(emails)) teacherEmbed.addField('E-mail', emails)
         if(Boolean(parents)) teacherEmbed.addField('Jednostki nadrzędne', parents)
-        if(Boolean(parents)) teacherEmbed.addField('Jednostka zatrudnienia', parents)
+        if(Boolean(employment)) teacherEmbed.addField('Jednostka zatrudnienia', employment)
         if(Boolean(info)) teacherEmbed.addField('Informacje własne pracownika', info)
 
         embeds.push(teacherEmbed)
