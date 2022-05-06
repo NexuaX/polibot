@@ -1,5 +1,5 @@
 const client = require("../main");
-const {backend} = require("../config.json");
+const {remindersSwitch, backend} = require("../config.json");
 const fetch = require("node-fetch");
 const {MessageEmbed} = require("discord.js");
 
@@ -43,7 +43,9 @@ client.once("ready", () => {
         setTimeout(checkForRemainders, 1000 * 60);
     };
 
-    checkForRemainders();
+
+    if (remindersSwitch === "on")
+        checkForRemainders();
 });
 
 async function printReminders(data, guild) {
