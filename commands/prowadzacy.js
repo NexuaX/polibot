@@ -1,10 +1,9 @@
 const {MessageEmbed, MessageActionRow, MessageButton} = require("discord.js");
 const fetch = require("node-fetch");
 const formData = require("form-data");
-const {backend} = require("../config.json");
 
-const embeds = []
-const pages = {}
+let embeds = []
+let pages = {}
 
 module.exports = {
     name: "prowadzacy",
@@ -16,6 +15,8 @@ module.exports = {
         let count
         let teachers = []
         let offset = 1
+        embeds = []
+        pages = {}
 
         const teacherData = await getTeacherData(teacherName, offset)
         teachers = teacherData.list
@@ -80,7 +81,7 @@ async function handleTeacherData(teacherList, message) {
             .setTitle('Dane prowadzącego')
             .setThumbnail('https://www.pk.edu.pl/images/PK18/promocja/KIW_2020/SYGNET_PK/PK_SYGNET_RGB.jpg')
             .setColor("#013571")
-            .setFooter({ text: `Strona: ${i + 1}`})
+            .setFooter({ text: `${i + 1}/${teacherList.length}`})
 
         if(Boolean(name)) teacherEmbed.addField('Imię i nazwisko', name)
         if(Boolean(phoneNumbers)) teacherEmbed.addField('Telefon', phoneNumbers)
@@ -105,7 +106,7 @@ async function handleTeacherData(teacherList, message) {
     if (message) {
         reply = await message.reply({
             embeds: [embed],
-            components: [getRow(id)]
+            components: (embeds.length > 1) ? [getRow(id)] : []
         })
 
         collector = reply.createMessageComponentCollector({filter, time})
@@ -113,7 +114,7 @@ async function handleTeacherData(teacherList, message) {
         message.interaction.reply({
             ephemeral: true,
             embeds: [embed],
-            components: [getRow(id)]
+            components: (embeds.length > 1) ? [getRow(id)] : []
         })
 
         collector = message.channel.createMessageComponentCollector({filter, time})
@@ -124,8 +125,7 @@ async function handleTeacherData(teacherList, message) {
             return
         }
 
-        btnInt.deferUpdate().then(r => {
-        })
+        btnInt.deferUpdate().then({})
 
         if (
             btnInt.customId !== 'prev_embed' &&
@@ -147,16 +147,26 @@ async function handleTeacherData(teacherList, message) {
             reply.edit({
                 embeds: [embeds[pages[id]]],
                 components: [getRow(id)]
-            }).then(r => {
-            })
+            }).then({})
         } else {
             message.interaction.editReply({
                 embeds: [embeds[pages[id]]],
                 components: [getRow(id)]
-            }).then(r => {
-            })
+            }).then({})
         }
     })
+
+    collector.on('end', () => {
+        if (reply) {
+            reply.edit({
+                components: []
+            }).then({})
+        } else {
+            message.interaction.editReply({
+                components: []
+            }).then({})
+        }
+    });
 }
 
 const getRow = (id) => {
