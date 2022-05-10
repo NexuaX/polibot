@@ -40,7 +40,7 @@ async function sendLastNewsToTheChat(message) {
     const newsEmbed = new MessageEmbed()
         .setTitle("Latest News")
         .setDescription(latestNews.innerHTML);
-    if (!isLinkHidden){
+    if (!isLinkHidden) {
         linkHref = link.getAttribute('href');
         linkHref = linkHref.split(" ").join("%20");
         newsEmbed.addField('Więcej', linkHref);
