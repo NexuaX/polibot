@@ -27,12 +27,17 @@ module.exports = {
             19: '🇸',
             20: '🇹',
         }
+        args.shift()
 
         const questionRegex = /'(.*)'/gmi;
-        const questionOriginal = args.join(' ').match(questionRegex) // Question Of Poll
+        const questionOriginal = args.join(' ').match(questionRegex)
+        if (!questionOriginal) return message.reply(`Nie zadano pytania`)
         const questionEdited = questionOriginal[0].replace("'", "").replace("'", "") // To Remove `` From Question
-        if (!questionOriginal || !questionEdited) return message.reply(`No Question Provided`)
-        let options = args.join(' ').slice(questionOriginal[0].length).split(' | ')
+        if (!questionEdited) return message.reply(`Nie zadano pytania`)
+
+        let options = args.join(' ').slice(questionOriginal[0].length).split('|')
+        options.shift()
+
         let result = ''
 
         if (options.length <= 1) {
@@ -46,7 +51,7 @@ module.exports = {
                 msg.react("🔴").then(() => {})
             })
         } else{
-            if (options.length > 20) return message.reply(`You Can't Have More Then 20 Options`)
+            if (options.length > 20) return message.reply(`Nie można podać więcej niż 20 opcji`)
             result = options.map((c, i) => {
                 return `${pollReactions[i + 1]} ${c}`
             })
@@ -55,7 +60,7 @@ module.exports = {
                 .setAuthor({ name: `${message.author.username}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
                 .setTimestamp()
                 .setColor("#013571")
-                .setDescription(`**${questionEdited}**${result.join('\n')}`)
+                .setDescription(`**${questionEdited}**\n${result.join('\n')}`)
             message.channel.send({embeds: [embed]}).then(msg => {
                 options.map(async (c, x) => {
                     await msg.react(pollReactions[x + 1])
