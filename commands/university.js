@@ -38,7 +38,7 @@ async function commandHandler(message, args) {
         }
 
         const data = {
-            room: room
+            name: room
         }
 
         const response = await fetch(backend + "/getRoomData", {
@@ -46,23 +46,20 @@ async function commandHandler(message, args) {
             body: JSON.stringify(data)
         }).then(res =>
             res.json()
-        ).catch(err => {
-                // TODO remove
-                // mock
-                return {
-                    code: "200",
-                    response: {
-                        building: "Budynek WIiTCH",
-                        name: "s. 135",
-                        floor: "Piętro 1",
-                        description: "Lewe skrzydło",
-                        image_url: "https://i.ibb.co/h8RdZqj/bud-wiitch.png"
-                    }
-                }
+        ).catch(() => {
+            return {
+                code: "-1",
+                response: {}
+            }
         });
 
-        if (response.code !== "200") {
-            message.channel.send("Error.");
+        if (response.code === "-1") {
+            message.channel.send("Data fetch error.");
+            return;
+        }
+
+        if (response.code !== "400") {
+            message.channel.send("Room not found!");
             return;
         }
 

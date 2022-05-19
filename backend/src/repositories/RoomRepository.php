@@ -7,7 +7,7 @@ class RoomRepository extends Repository {
     public function getRoomFromDB(object $data) {
 
         $query = $this->dbref->connect()->prepare(
-            "SELECT * FROM rooms WHERE name like '%$data->name%'"
+            "SELECT * FROM rooms WHERE lower(name) like lower('%$data->name%')"
         );
         $query->execute();
 
