@@ -1,4 +1,16 @@
 {
   "pfp": "https://i.ibb.co/qndFPvd/polibot-pfp.jpg",
-  "scheduleIcon": "https://i.ibb.co/7X4zN3M/schedule-icon.png"
+  "scheduleIcon": "https://i.ibb.co/7X4zN3M/schedule-icon.png",
+  "reminderIcon": "https://i.ibb.co/sFJh4cy/reminder-icon.png",
+  "pklogo": "https://www.pk.edu.pl/images/PK18/promocja/KIW_2020/SYGNET_PK/PK_SYGNET_RGB.jpg",
+  "bud_dzialownia": "https://i.ibb.co/yFk2k4B/bud-dzialownia.png",
+  "bud_gil": "https://i.ibb.co/SxRF7y7/bud-gil.png",
+  "bud_huston": "https://i.ibb.co/Lt1JFQ3/bud-huston.png",
+  "bud_podchorazych": "https://i.ibb.co/567PbPR/bud-podchorazych.png",
+  "bud_wa": "https://i.ibb.co/fDrm7BM/bud-wa.png",
+  "bud_wieik": "https://i.ibb.co/GT3bVJ3/bud-wieik.png",
+  "bud_wiitch": "https://i.ibb.co/h8RdZqj/bud-wiitch.png",
+  "bud_wil": "https://i.ibb.co/Hxbxj66/bud-wil.png",
+  "kampus_warszawska": "https://i.ibb.co/Gcm9sDb/kampus-warszawska.png",
+  "podchorazych": "https://i.ibb.co/M72fJzJ/podchorazych.png"
 }

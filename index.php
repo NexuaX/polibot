@@ -11,6 +11,7 @@ Router::post('getReactionRole', 'SetupComandController');
 Router::post('getReminders', 'ReminderController');
 Router::post('setReminder', 'ReminderController');
 Router::post('getScheduleForGroup', 'ScheduleController');
+Router::post('getRoomData', "RoomController");
 
 Router::run($path);
 
