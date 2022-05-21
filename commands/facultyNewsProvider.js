@@ -13,7 +13,7 @@ module.exports = {
             case "on":
                 message.channel.send("enabled");
                 facultyNewsInterval = setInterval(() => {
-                    sendLastNewsToTheChat(message)
+                    sendLastNewsToTheChat(message);
                 }, 5000);
                 break;
             case "off":
@@ -25,30 +25,48 @@ module.exports = {
     }
 }
 
-async function sendLastNewsToTheChat(message) {
+async function parseWebsite() {
     const result = await fetch("https://it.pk.edu.pl/");
     const text = await result.text();
-
     const parser = new JSDOM(text);
-    const parsedDocument = parser.window.document;
+    return parser.window.document;
+}
 
+function sendIfNewsHasBeenUpdated(latestNews, message, newsEmbed) {
+    if (lastMessage == null || lastMessage.innerHTML !== latestNews.innerHTML) {
+        message.channel.send({embeds: [newsEmbed]});
+        lastMessage = latestNews;
+    }
+}
+
+function addLink(isLinkHidden, link, newsEmbed) {
+    let linkHref;
+    if (!isLinkHidden) {
+        linkHref = link.getAttribute('href');
+        linkHref = linkHref.split(" ").join("%20");
+        newsEmbed.addField('Więcej', linkHref);
+    }
+}
+
+function decorateMessage(latestNews) {
+    return new MessageEmbed()
+        .setTitle("Latest News")
+        .setDescription(latestNews.innerHTML);
+}
+
+function extractNewsInfo(parsedDocument) {
     const newsCollection = parsedDocument.querySelector('[mytype="news"]');
     const latestNews = newsCollection.querySelector(".readmetxt");
     const linkContainer = newsCollection.querySelector(".text-right");
     const link = linkContainer.querySelector('a');
     let isLinkHidden = linkContainer.innerHTML.includes("visibility:hidden");
-    const newsEmbed = new MessageEmbed()
-        .setTitle("Latest News")
-        .setDescription(latestNews.innerHTML);
-    if (!isLinkHidden) {
-        linkHref = link.getAttribute('href');
-        linkHref = linkHref.split(" ").join("%20");
-        newsEmbed.addField('Więcej', linkHref);
-        latestNews.innerHTML += '\n' + linkHref;
-    }
-    if (lastMessage == null || lastMessage.innerHTML !== latestNews.innerHTML) {
-        console.log(latestNews.innerHTML);
-        message.channel.send({embeds: [newsEmbed]});
-        lastMessage = latestNews;
-    }
+    return {latestNews, link, isLinkHidden};
+}
+
+async function sendLastNewsToTheChat(message) {
+    const parsedDocument = await parseWebsite();
+    let {latestNews, link, isLinkHidden} = extractNewsInfo(parsedDocument);
+    const newsEmbed = decorateMessage(latestNews);
+    addLink(isLinkHidden, link, newsEmbed);
+    sendIfNewsHasBeenUpdated(latestNews, message, newsEmbed);
 }
