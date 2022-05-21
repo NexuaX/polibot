@@ -2,9 +2,9 @@
     "autoload": {
         "psr-4": {
             "Classes\\Controllers\\":"src/controllers/",
+            "Classes\\Controllers\\Helpers\\":"src/controllers/helpers",
             "Classes\\Models\\":"src/models/",
-            "Classes\\Repositories\\":"src/repositories/",
-            "Classes\\Handlers\\":"src/"
+            "Classes\\Repositories\\":"src/repositories/"
         },
         "classmap": ["Router.php","DBHandler.php"],
         "files": ["config.php"]
