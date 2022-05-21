@@ -8,12 +8,16 @@
     class SetupComandController extends Controller{
 
         public function setupServer() : void{
-            $this->validateFields([
+            
+            $validation = $this->validator->validateFields([
                 'guild_id',
                 'faculty',
                 'year',
                 'department'
-            ]);
+            ],$this->data);
+
+            if(!$validation)
+                $this->response->responseError("Invalid request fields");
 
             $repository = new SetupCommandRepository();
             if(!$repository->guildExists($this->data->guild_id)){
@@ -22,15 +26,19 @@
             else{
                 $repository->updateGuild($this->data);
             }
-            $this->responseOk();
+
+            $this->response->responseOk();
         }
 
         public function setupGroups() : void{
-            $this->validateFields([
+            $validation = $this->validator->validateFields([
                 'guild_id',
                 'message_id',
                 'roles'
-            ]);
+            ],$this->data);
+            
+            if(!$validation)
+                $this->response->responseError("Invalid request fields");
 
             $repository = new SetupCommandRepository();
             
@@ -39,14 +47,17 @@
 
             $repository->addGroupAssignment($this->data);
 
-            $this->responseOk();
+            $this->response->responseOk();
         }
 
         public function getReactionMessage() : void{
-            $this->validateFields([
+            $validation = $this->validator->validateFields([
                 'guild_id',
                 'message_id'
-            ]);
+            ],$this->data);
+
+            if(!$validation)
+                $this->response->responseError("Invalid request fields");
 
             $repository = new SetupCommandRepository();
             $groups = $repository->getGroupAssignmentMessage($this->data);
@@ -56,48 +67,53 @@
                 'roles' => $groups
             ];
 
-            echo json_encode([
-                'code'      => '200',
-                'response'  => $response
-            ]);
+            $this->response->responseOk($response);
         }
 
         public function getReactionRole() : void {
-            $this->validateFields([
+            $validation = $this->validator->validateFields([
                 'guild_id',
                 'message_id',
                 'emoji_name'
-            ]);
+            ],$this->data);
+            
+            if(!$validation)
+                $this->response->responseError("Invalid request fields");
 
             $repository = new SetupCommandRepository();
-            $response = $repository->getGroupAssignmentRole($this->data);
+            $role = $repository->getGroupAssignmentRole($this->data);
 
-            echo json_encode([
-                'code'      => '200',
-                'response'  => $response
-            ]);
+            $this->response->responseOk($role);
         }
 
-        private function validateFields(array $fields){
-            foreach($fields as $fieldname){
-                if(!isset($this->data->$fieldname)){
-                    $this->responseError();
-                    die();
-                }
-            }
+        public function getServerInfo() : void {
+
+            $validation = $this->validator->validateFields(['guild_id'],$this->data);
+
+            if(!$validation)
+                $this->response->responseError("Invalid request fields");
+
+            $repository = new SetupCommandRepository();
+            $servInfo = $repository->getServerInfo($this->data->guild_id);
+            if($servInfo == null)
+                $this->response->responseError("No data found");
+
+            $this->response->responseOk($servInfo);
         }
 
-        private function responseError() : void {
-            echo json_encode([
-                'code'      => '400',
-                'response'  => 'invalid request fields'
-            ]);
-        }
+        public function getGroupsInfo() : void {
 
-        private function responseOk() : void {
-            echo json_encode([
-                'code'      => '200',
-                'response'  => 'success!'
-            ]);
+            $validation = $this->validator->validateFields(['guild_id'],$this->data);
+
+            if(!$validation)
+                $this->response->responseError("invalid request fields");
+            
+            $repository = new SetupCommandRepository();
+            $groupInfo = $repository->getGroupsInfo($this->data->guild_id);
+
+            if($groupInfo == null)
+                $this->response->responseError("No data found");
+            
+            $this->response->responseOk($groupInfo);
         }
     }
