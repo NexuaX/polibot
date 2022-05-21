@@ -8,10 +8,13 @@ class ScheduleController extends Controller {
 
     public function getScheduleForGroup() {
 
-        $this->validateFields([
+        $validation = $this->validator->validateFields([
             'day',
             'group'
-        ]);
+        ],$this->data);
+
+        if(!$validation)
+            $this->response->responseError("Invalid request fields");
 
         $repository = new ScheduleRepository();
         $resultSchedule = $repository->getScheduleForGroup($this->data);
@@ -24,34 +27,8 @@ class ScheduleController extends Controller {
             "last_update" => $resultLastUpdate["last_update"]
         ];
 
-        echo json_encode([
-            'code'      => '200',
-            'response'  => $response
-        ]);
+        $this->response->responseOk($response);
 
-    }
-
-    private function validateFields(array $fields){
-        foreach($fields as $fieldname){
-            if(!isset($this->data->$fieldname)){
-                $this->responseError('Invalid request fields');
-                die();
-            }
-        }
-    }
-
-    private function responseError(string $error) : void {
-        echo json_encode([
-            'code'      => '400',
-            'response'  => $error
-        ]);
-    }
-
-    private function responseOk() : void {
-        echo json_encode([
-            'code'      => '200',
-            'response'  => 'ok'
-        ]);
     }
 
 }
