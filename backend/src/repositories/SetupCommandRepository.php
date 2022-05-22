@@ -169,4 +169,43 @@
 
             return $result;
         }
+
+        public function getServerInfo($guildID){
+            $query = $this->dbref->connect()->prepare(
+                "SELECT guild_id,faculty,year,department FROM public.group_panels NATURAL JOIN guilds where guild_id = '$guildID'"
+            );
+
+            $query->execute();
+            $result = $query->fetch(\PDO::FETCH_ASSOC);
+
+            if(!$result)
+                return null;
+            
+            return $result;
+        }
+
+        public function getGroupsInfo($guildID){
+            $query = $this->dbref->connect()->prepare(
+                "SELECT guild_id,message_id FROM public.group_panels where guild_id = '$guildID'"
+            );
+
+            $query->execute();
+            $result = $query->fetch(\PDO::FETCH_ASSOC);
+            
+            if(!$result)
+                return null;
+            
+            $result['roles'] = $this->getGroupAssignmentMessage((object)$result);
+            return $result;
+        }
+
+        public function test(){
+            $query = $this->dbref->connect()->prepare(
+                "SELECT * FROM group_panels NATURAL JOIN guilds where guild_id = '948547267319722026'"
+            );
+
+            $query->execute();
+            $result = $query->fetch(\PDO::FETCH_ASSOC);
+            return $result;
+        }
     }
