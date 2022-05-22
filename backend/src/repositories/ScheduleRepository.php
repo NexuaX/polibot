@@ -7,8 +7,9 @@ class ScheduleRepository extends Repository {
     public function getScheduleForGroup(object $data) {
 
         $query = $this->dbref->connect()->prepare(
-            "select name, type, room, time_from, time_to from nexuax_schedule 
-            join nexuax_courses using(schedule_id)
+            "select c.name, type, r.name, time_from, time_to from schedule s
+            join courses c using(schedule_id)
+            join rooms r using(room_id)
             where day = '$data->day' and \"group\" = '$data->group'
             order by time_from"
         );
@@ -21,7 +22,7 @@ class ScheduleRepository extends Repository {
     public function getLastUpdate(object $data) {
 
         $query = $this->dbref->connect()->prepare(
-            "select last_update from nexuax_schedule 
+            "select last_update from schedule 
             where day = '$data->day' and \"group\" = '$data->group'"
         );
         $query->execute();
