@@ -2,6 +2,7 @@ const client = require("../main");
 const {remindersSwitch, backend} = require("../config.json");
 const fetch = require("node-fetch");
 const {MessageEmbed} = require("discord.js");
+const imageUrls = require("../assets/urls.json");
 
 client.once("ready", () => {
 
@@ -62,7 +63,8 @@ async function printReminders(data, guild) {
             .setColor("RED")
             .setTitle(reminder.name.toUpperCase())
             .setDescription(reminder.message)
-            .addField("Data", dateString);
+            .addField("Data", dateString)
+            .setThumbnail(imageUrls.reminderIcon);
 
         const channel = await guild.channels.fetch(reminder.channel);
         await channel.send({content: message ,embeds: [reminderEmbed]});
