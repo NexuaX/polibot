@@ -3,7 +3,7 @@ const { token } = require("./config.json");
 const fs = require("fs");
 
 const client = new Discord.Client({
-    intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"],
+    intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"],
     partials: ["MESSAGE", "REACTION"]
 });
 
