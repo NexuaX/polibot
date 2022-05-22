@@ -35,9 +35,6 @@ module.exports = {
                 department: args[4],
             };
 
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
-
             const response = await fetch(backend + "/setupServer", {
                 method: "POST",
                 headers: {
@@ -47,9 +44,6 @@ module.exports = {
             });
 
             const jsonResponse = await response.json();
-
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(jsonResponse, null, 2) + "\n```");
 
             if (jsonResponse.code === '200') {
                 message.channel.send("Success.");
@@ -88,9 +82,6 @@ module.exports = {
                 });
             }
 
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
-
             const response = await fetch(backend + "/setupGroups", {
                 method: "POST",
                 headers: {
@@ -100,9 +91,6 @@ module.exports = {
             });
 
             const jsonResponse = await response.json();
-
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(jsonResponse, null, 2) + "\n```");
 
             if (jsonResponse.code === '200') {
                 message.channel.send("Success.");

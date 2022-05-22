@@ -20,8 +20,6 @@ async function commandHandler(message, args) {
 
     const [ name, who, deadline, channel ] = args;
 
-    const deadlineDate = new Date(deadline);
-
     const data = {
         guild_id: message.guildId,
         name: name,
@@ -54,7 +52,6 @@ async function commandHandler(message, args) {
 
         data.message = collectedMessage.content;
 
-        // TODO wysłanie do bazy
         // select to_char(timestamp '2022-04-20T14:45', 'DD/MM/YYYY HH24:MI')
 
         const response = await fetch(backend + '/setReminder', {
@@ -72,9 +69,6 @@ async function commandHandler(message, args) {
         } else {
             message.reply("Failed.");
         }
-
-        // TODO usunąć w produkcji
-        message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
     });
 
 }

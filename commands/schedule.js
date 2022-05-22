@@ -32,7 +32,6 @@ async function commandHandler(message, args) {
 
         const div = parsedDocument.querySelectorAll("div.alert.readmetxt.alert-white")[0];
         const link = div.querySelector("a");
-        const href = link.href;
         const linkText = link.innerHTML;
         const updateText = linkText.substring(linkText.indexOf("(aktualizacja"));
 
@@ -54,7 +53,6 @@ async function commandHandler(message, args) {
             group
         };
 
-        // fetch from database
         const {code, response} = await fetch(backend + "/getScheduleForGroup", {
             method: "POST",
             body: JSON.stringify(data)
@@ -69,9 +67,6 @@ async function commandHandler(message, args) {
             message.channel.send(generateTable(response.schedule));
             return;
         }
-
-        // debug
-        // message.channel.send("```json\n" + JSON.stringify(response, null, 2) + "\n```");
 
         const embed = new MessageEmbed()
             .setTitle(`Plan na ${dayMapping.get(response.day)}`)
@@ -96,6 +91,7 @@ async function commandHandler(message, args) {
 
 }
 
+// experimental
 function generateTable(schedule) {
 
     const [

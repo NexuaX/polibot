@@ -1,12 +1,11 @@
 const client = require("../main");
-const {remindersSwitch, backend} = require("../config.json");
+const {reminders_switch, backend} = require("../config.json");
 const fetch = require("node-fetch");
 const {MessageEmbed} = require("discord.js");
 const imageUrls = require("../assets/urls.json");
 
 client.once("ready", () => {
 
-    // TODO wczytanie z bazy przypomnień
     const checkForRemainders = async () => {
 
         console.log("Sprawdzam czy mam coś do przypomnienia ...");
@@ -44,8 +43,7 @@ client.once("ready", () => {
         setTimeout(checkForRemainders, 1000 * 60);
     };
 
-
-    if (remindersSwitch === "on")
+    if (reminders_switch === "on")
         checkForRemainders();
 });
 
