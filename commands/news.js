@@ -4,6 +4,7 @@ const {MessageEmbed} = require("discord.js");
 
 let facultyNewsInterval;
 let lastMessage;
+
 module.exports = {
     name: 'news',
     description: "shows latest news",
@@ -12,9 +13,9 @@ module.exports = {
         switch (args[1]) {
             case "on":
                 message.channel.send("enabled");
-                facultyNewsInterval = setInterval(() => {
-                    sendLastNewsToTheChat(message);
-                }, 5000);
+                facultyNewsInterval = setInterval(async () => {
+                    await sendLastNewsToTheChat(message);
+                }, 1000 * 60 * 30);
                 break;
             case "off":
                 message.channel.send("disabled");
