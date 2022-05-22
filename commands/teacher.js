@@ -6,7 +6,7 @@ let embeds = []
 let pages = {}
 
 module.exports = {
-    name: "prowadzacy",
+    name: "teacher",
     description: "Wypisuje dane prowadzacego",
     async execute(message, args) {
         const teacherName = args.slice(1).join(' ')
