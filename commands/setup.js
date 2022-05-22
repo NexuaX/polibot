@@ -1,6 +1,7 @@
 const {MessageEmbed} = require("discord.js");
 const {backend} = require("../config.json");
 const fetch = require("node-fetch");
+const client = require("../main");
 
 const fruitEmoji = [
     "🍉", "🍊", "🍋", "🥭", "🍐", "🍑", "🥝", "🍓"
@@ -105,6 +106,7 @@ module.exports = {
 
             if (jsonResponse.code === '200') {
                 message.channel.send("Success.");
+                client.globals.roleReactionMessage.set(sendMessage.guildId, sendMessage.id);
             } else {
                 message.channel.send("Failed.");
             }
