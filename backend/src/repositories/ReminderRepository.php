@@ -7,7 +7,7 @@ use DateTime;
 
 class ReminderRepository extends Repository {
 
-    public function addNewReminder(object $data) : bool{
+    public function addNewReminder(object $data) : bool|array{
 
         $time = date_create($data->deadline);
         $time2 = new DateTime('now');
@@ -26,13 +26,15 @@ class ReminderRepository extends Repository {
                            '$data->deadline',
                            '$data->channel',
                            '$data->message',
-                           '$amount')"
+                           '$amount')
+                    returning reminder_id"
         );
 
         if(!$query->execute()){
             return false;
         }
-        return true;
+
+        return $query->fetch(\PDO::FETCH_ASSOC);
     }
 
     public function getReminder(string $guild_id) : array{
@@ -68,5 +70,19 @@ class ReminderRepository extends Repository {
         }
 
         return($result_list);
+    }
+
+    public function deleteReminder(object $data): bool {
+
+        $query = $this->dbref->connect()->prepare(
+            "delete from reminders
+                where reminder_id = $data->reminder_id and guild_id = '$data->guild_id'"
+        );
+
+        if(!$query->execute()) {
+            return false;
+        }
+
+        return $query->rowCount() != 0;
     }
 }

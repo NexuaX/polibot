@@ -21,11 +21,12 @@ class ReminderController extends Controller {
             $this->response->responseError("Invalid request fields");
 
         $repository = new ReminderRepository();
-        if(!$repository->addNewReminder($this->data)){
+        $resultData = $repository->addNewReminder($this->data);
+        if(!$resultData){
             $this->response->responseError('DB error');
             die();
         }
-        $this->response->responseOk();
+        $this->response->responseOk($resultData);
     }
 
     public function getReminders() : void {
@@ -58,6 +59,24 @@ class ReminderController extends Controller {
         ];
 
         $this->response->responseOk($response);
+    }
+
+    public function deleteReminder() : void {
+        $validation = $this->validator->validateFields([
+            'guild_id', 'reminder_id'
+        ],$this->data);
+
+        if(!$validation)
+            $this->response->responseError("Invalid request fields");
+
+        $repository = new ReminderRepository();
+        $resultData = $repository->deleteReminder($this->data);
+
+        if(!$resultData){
+            $this->response->responseError('DB error');
+            die();
+        }
+        $this->response->responseOk();
     }
 
 }

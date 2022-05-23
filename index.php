@@ -12,6 +12,7 @@ Router::post('getReactionMessage', 'SetupComandController');
 Router::post('getReactionRole', 'SetupComandController');
 Router::post('getReminders', 'ReminderController');
 Router::post('setReminder', 'ReminderController');
+Router::post('deleteReminder', 'ReminderController');
 Router::post('getScheduleForGroup', 'ScheduleController');
 Router::post('getRoomData', "RoomController");
 
