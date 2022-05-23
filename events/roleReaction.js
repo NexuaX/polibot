@@ -18,6 +18,8 @@ client.on("ready", async () => {
                 client.globals.roleReactionMessage.set(guild.id, response.response.message_id);
                 console.log(`roleReaction message for guild ${guild.name} registered`);
             }
+        }).catch(() => {
+            console.log("connection to /getGroupsInfo failed, moving on");
         });
     });
 });

@@ -24,7 +24,11 @@ async function commandHandler(message, args) {
 
     if (subcommand === "newest") {
 
-        const response = await fetch("https://it.pk.edu.pl/?page=rz");
+        const response = await fetch("https://it.pk.edu.pl/?page=rz").catch(() => null);
+        if (!response) {
+            message.channel.send("Fetch from website error.");
+            return;
+        }
         const text = await response.text();
 
         const parser = new JSDOM(text);
@@ -56,10 +60,22 @@ async function commandHandler(message, args) {
         const {code, response} = await fetch(backend + "/getScheduleForGroup", {
             method: "POST",
             body: JSON.stringify(data)
-        }).then(response => response.json());
+        }).then(response => {
+            return response.json()
+        }).catch(() => {
+            return {
+                code: "-1",
+                response: {}
+            }
+        });
+
+        if (code === "-1") {
+            message.channel.send("Fetch from database error.");
+            return;
+        }
 
         if (code !== "200") {
-            message.channel.send("Error.");
+            message.channel.send("Backend error. " + response);
             return;
         }
 
@@ -87,6 +103,8 @@ async function commandHandler(message, args) {
 
         message.channel.send({embeds: [embed]});
 
+    } else {
+        message.channel.send(`Nieznana podkomenda \`${subcommand}\``);
     }
 
 }

@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const {JSDOM} = require("jsdom");
 const {MessageEmbed} = require("discord.js");
 
-let facultyNewsInterval;
+let facultyNewsInterval = 0;
 let lastMessage;
 
 module.exports = {
@@ -20,6 +20,14 @@ module.exports = {
             case "off":
                 message.channel.send("disabled");
                 clearInterval(facultyNewsInterval);
+                facultyNewsInterval = 0;
+                break;
+            case "status":
+                console.log(facultyNewsInterval);
+                message.channel.send("News module status: " + (facultyNewsInterval === 0 ? "`off`" : "`on`"));
+                break;
+            default:
+                message.channel.send(`Unknown option \`${args[1]}\``);
                 break;
         }
 
@@ -27,7 +35,8 @@ module.exports = {
 }
 
 async function parseWebsite() {
-    const result = await fetch("https://it.pk.edu.pl/");
+    const result = await fetch("https://it.pk.edu.pl/").catch(() => null);
+    if (!result) return null;
     const text = await result.text();
     const parser = new JSDOM(text);
     return parser.window.document;
@@ -66,6 +75,10 @@ function extractNewsInfo(parsedDocument) {
 
 async function sendLastNewsToTheChat(message) {
     const parsedDocument = await parseWebsite();
+    if (!parsedDocument) {
+        console.log("News fetch error.");
+        return;
+    }
     let {latestNews, link, isLinkHidden} = extractNewsInfo(parsedDocument);
     const newsEmbed = decorateMessage(latestNews);
     addLink(isLinkHidden, link, newsEmbed);

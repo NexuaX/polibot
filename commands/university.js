@@ -77,6 +77,8 @@ async function commandHandler(message, args) {
 
         message.channel.send({embeds: [embed]});
 
+    } else {
+        message.channel.send(`Nieznana podkomenda \`${subcommand}\``);
     }
 
 }

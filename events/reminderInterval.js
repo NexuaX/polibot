@@ -17,26 +17,28 @@ client.once("ready", () => {
 
             const response = await fetch(backend + "/getReminders", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 body: JSON.stringify(data)
+            }).then(response => {
+                return response.json();
+            }).catch(() => {
+                return {
+                    code: "-1",
+                    response: {}
+                }
             });
 
-            const responseData = await response.json();
-
-            if (responseData.code !== "200") {
+            if (response.code !== "200") {
                 console.log("Reminders fetch error!");
                 console.log(response);
                 break;
             }
 
-            if (responseData.response.reminders.length === 0) {
+            if (response.response.reminders.length === 0) {
                 console.log("No remidners to print!");
                 break;
             }
 
-            printReminders(responseData.response, guild);
+            await printReminders(response.response, guild);
         }
 
         // pętla wywołania co minutę

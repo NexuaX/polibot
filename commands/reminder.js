@@ -31,7 +31,12 @@ async function commandHandler(message, args) {
 
     data.who = message.mentions.everyone ? message.guild.roles.everyone.id : message.mentions.roles.first().id;
 
-    message.reply("Teraz podaj wiadomość przypomnienia.");
+    if (!data.who) {
+        message.channel.send("Wspomnij odpowiedni obiekt.");
+        return;
+    }
+
+    message.reply("Teraz podaj wiadomość przypomnienia. (60s)");
 
     const filter = (collected) => {
         return collected.author.id === message.author.id;
@@ -56,18 +61,20 @@ async function commandHandler(message, args) {
 
         const response = await fetch(backend + '/setReminder', {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify(data)
+        }).then(response => {
+            return response.json()
+        }).catch(() => {
+            return {
+                code: "-1",
+                response: {}
+            }
         });
 
-        const responseData = await response.json();
-
-        if (responseData.code === "200") {
+        if (response.code === "200") {
             message.reply("Przypomnienie ustawione.");
         } else {
-            message.reply("Failed.");
+            message.reply("Failed. " + response.code);
         }
     });
 
