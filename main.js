@@ -7,6 +7,9 @@ const client = new Discord.Client({
     partials: ["MESSAGE", "REACTION"]
 });
 
+// obiekt do trzymania zmiennych globalnych
+client.globals = {};
+
 module.exports = client;
 
 // wczytanie eventow

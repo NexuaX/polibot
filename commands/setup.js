@@ -1,6 +1,7 @@
 const {MessageEmbed} = require("discord.js");
 const {backend} = require("../config.json");
 const fetch = require("node-fetch");
+const client = require("../main");
 
 const fruitEmoji = [
     "🍉", "🍊", "🍋", "🥭", "🍐", "🍑", "🥝", "🍓"
@@ -34,26 +35,22 @@ module.exports = {
                 department: args[4],
             };
 
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
-
             const response = await fetch(backend + "/setupServer", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 body: JSON.stringify(data)
+            }).then(response => {
+                return response.json();
+            }).catch(() => {
+                return {
+                    code: "-1",
+                    response: {}
+                }
             });
 
-            const jsonResponse = await response.json();
-
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(jsonResponse, null, 2) + "\n```");
-
-            if (jsonResponse.code === '200') {
+            if (response.code === '200') {
                 message.channel.send("Success.");
             } else {
-                message.channel.send("Failed.");
+                message.channel.send("Failed. " + response.code);
             }
 
         } else if (args[1] === "groups") {
@@ -79,34 +76,32 @@ module.exports = {
             const sendMessage = await message.channel.send({embeds: [groupsEmbed]});
 
             data.message_id = sendMessage.id;
+
+            const response = await fetch(backend + "/setupGroups", {
+                method: "POST",
+                body: JSON.stringify(data)
+            }).then(response => {
+                return response.json();
+            }).catch(() => {
+                return {
+                    code: "-1",
+                    response: {}
+                }
+            });
+
+            if (response.code === '200') {
+                message.channel.send("Success.");
+                client.globals.roleReactionMessage.set(sendMessage.guildId, sendMessage.id);
+            } else {
+                message.channel.send("Failed. " + response.code);
+            }
+
             for (let i = 0; i < args.length - 2; i++) {
                 const reaction = await sendMessage.react(fruitEmoji[i]);
                 data.roles.push({
                     role_name: args[i + 2],
                     emoji_name: reaction.emoji.name
                 });
-            }
-
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(data, null, 2) + "\n```");
-
-            const response = await fetch(backend + "/setupGroups", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
-
-            const jsonResponse = await response.json();
-
-            // TODO usunąć w produkcji
-            message.channel.send("```json\n" + JSON.stringify(jsonResponse, null, 2) + "\n```");
-
-            if (jsonResponse.code === '200') {
-                message.channel.send("Success.");
-            } else {
-                message.channel.send("Failed.");
             }
 
         }

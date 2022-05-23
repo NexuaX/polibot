@@ -1,11 +1,11 @@
 const client = require("../main");
-const {remindersSwitch, backend} = require("../config.json");
+const {reminders_switch, backend} = require("../config.json");
 const fetch = require("node-fetch");
 const {MessageEmbed} = require("discord.js");
+const imageUrls = require("../assets/urls.json");
 
 client.once("ready", () => {
 
-    // TODO wczytanie z bazy przypomnień
     const checkForRemainders = async () => {
 
         console.log("Sprawdzam czy mam coś do przypomnienia ...");
@@ -17,34 +17,35 @@ client.once("ready", () => {
 
             const response = await fetch(backend + "/getReminders", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 body: JSON.stringify(data)
+            }).then(response => {
+                return response.json();
+            }).catch(() => {
+                return {
+                    code: "-1",
+                    response: {}
+                }
             });
 
-            const responseData = await response.json();
-
-            if (responseData.code !== "200") {
+            if (response.code !== "200") {
                 console.log("Reminders fetch error!");
                 console.log(response);
                 break;
             }
 
-            if (responseData.response.reminders.length === 0) {
+            if (response.response.reminders.length === 0) {
                 console.log("No remidners to print!");
                 break;
             }
 
-            printReminders(responseData.response, guild);
+            await printReminders(response.response, guild);
         }
 
         // pętla wywołania co minutę
         setTimeout(checkForRemainders, 1000 * 60);
     };
 
-
-    if (remindersSwitch === "on")
+    if (reminders_switch === "on")
         checkForRemainders();
 });
 
@@ -62,7 +63,8 @@ async function printReminders(data, guild) {
             .setColor("RED")
             .setTitle(reminder.name.toUpperCase())
             .setDescription(reminder.message)
-            .addField("Data", dateString);
+            .addField("Data", dateString)
+            .setThumbnail(imageUrls.reminderIcon);
 
         const channel = await guild.channels.fetch(reminder.channel);
         await channel.send({content: message ,embeds: [reminderEmbed]});

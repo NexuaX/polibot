@@ -24,7 +24,11 @@ async function commandHandler(message, args) {
 
     if (subcommand === "newest") {
 
-        const response = await fetch("https://it.pk.edu.pl/?page=rz");
+        const response = await fetch("https://it.pk.edu.pl/?page=rz").catch(() => null);
+        if (!response) {
+            message.channel.send("Fetch from website error.");
+            return;
+        }
         const text = await response.text();
 
         const parser = new JSDOM(text);
@@ -32,7 +36,6 @@ async function commandHandler(message, args) {
 
         const div = parsedDocument.querySelectorAll("div.alert.readmetxt.alert-white")[0];
         const link = div.querySelector("a");
-        const href = link.href;
         const linkText = link.innerHTML;
         const updateText = linkText.substring(linkText.indexOf("(aktualizacja"));
 
@@ -54,14 +57,25 @@ async function commandHandler(message, args) {
             group
         };
 
-        // fetch from database
         const {code, response} = await fetch(backend + "/getScheduleForGroup", {
             method: "POST",
             body: JSON.stringify(data)
-        }).then(response => response.json());
+        }).then(response => {
+            return response.json()
+        }).catch(() => {
+            return {
+                code: "-1",
+                response: {}
+            }
+        });
+
+        if (code === "-1") {
+            message.channel.send("Fetch from database error.");
+            return;
+        }
 
         if (code !== "200") {
-            message.channel.send("Error.");
+            message.channel.send("Backend error. " + response);
             return;
         }
 
@@ -69,9 +83,6 @@ async function commandHandler(message, args) {
             message.channel.send(generateTable(response.schedule));
             return;
         }
-
-        // debug
-        // message.channel.send("```json\n" + JSON.stringify(response, null, 2) + "\n```");
 
         const embed = new MessageEmbed()
             .setTitle(`Plan na ${dayMapping.get(response.day)}`)
@@ -92,10 +103,13 @@ async function commandHandler(message, args) {
 
         message.channel.send({embeds: [embed]});
 
+    } else {
+        message.channel.send(`Nieznana podkomenda \`${subcommand}\``);
     }
 
 }
 
+// experimental
 function generateTable(schedule) {
 
     const [
