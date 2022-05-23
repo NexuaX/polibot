@@ -1,6 +1,7 @@
 const {MessageEmbed, MessageActionRow, MessageButton} = require("discord.js");
 const fetch = require("node-fetch");
 const formData = require("form-data");
+const imageUrls = require("../assets/urls.json");
 
 let embeds = []
 let pages = {}
@@ -79,7 +80,7 @@ async function handleTeacherData(teacherList, message) {
 
         const teacherEmbed = new MessageEmbed()
             .setTitle('Dane prowadzącego')
-            .setThumbnail('https://www.pk.edu.pl/images/PK18/promocja/KIW_2020/SYGNET_PK/PK_SYGNET_RGB.jpg')
+            .setThumbnail(imageUrls.pklogo)
             .setColor("#013571")
             .setFooter({ text: `${i + 1}/${teacherList.length}`})
 
@@ -97,28 +98,16 @@ async function handleTeacherData(teacherList, message) {
     const id = message.author.id
     pages[id] = pages[id] || 0
     const embed = embeds[pages[id]]
-    let reply
-    let collector
 
     const filter = (i) => i.user.id === message.author.id
     const time = 1000 * 60 * 5
 
-    if (message) {
-        reply = await message.reply({
-            embeds: [embed],
-            components: (embeds.length > 1) ? [getRow(id)] : []
-        })
+    const reply = await message.reply({
+        embeds: [embed],
+        components: (embeds.length > 1) ? [getRow(id)] : []
+    })
 
-        collector = reply.createMessageComponentCollector({filter, time})
-    } else {
-        message.interaction.reply({
-            ephemeral: true,
-            embeds: [embed],
-            components: (embeds.length > 1) ? [getRow(id)] : []
-        })
-
-        collector = message.channel.createMessageComponentCollector({filter, time})
-    }
+    const collector = reply.createMessageComponentCollector({filter, time})
 
     collector.on('collect', (btnInt) => {
         if (!btnInt) {
@@ -143,49 +132,34 @@ async function handleTeacherData(teacherList, message) {
             ++pages[id]
         }
 
-        if (reply) {
-            reply.edit({
-                embeds: [embeds[pages[id]]],
-                components: [getRow(id)]
-            }).then({})
-        } else {
-            message.interaction.editReply({
-                embeds: [embeds[pages[id]]],
-                components: [getRow(id)]
-            }).then({})
-        }
+        reply.edit({
+            embeds: [embeds[pages[id]]],
+            components: [getRow(id)]
+        }).then({})
     })
 
     collector.on('end', () => {
-        if (reply) {
-            reply.edit({
-                components: []
-            }).then({})
-        } else {
-            message.interaction.editReply({
-                components: []
-            }).then({})
-        }
+        reply.edit({
+            components: []
+        }).then({})
     });
 }
 
 const getRow = (id) => {
     const row = new MessageActionRow()
 
-    row.addComponents(
+    row.addComponents([
         new MessageButton()
             .setCustomId('prev_embed')
             .setStyle('SECONDARY')
             .setEmoji('⬅️')
-            .setDisabled(pages[id] === 0)
-    )
-    row.addComponents(
+            .setDisabled(pages[id] === 0),
         new MessageButton()
             .setCustomId('next_embed')
             .setStyle('SECONDARY')
             .setEmoji('➡️')
             .setDisabled(pages[id] === embeds.length - 1)
-    )
+    ])
     return row
 }
 
