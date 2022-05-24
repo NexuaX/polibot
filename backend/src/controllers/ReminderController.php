@@ -8,27 +8,34 @@ use DateTime;
 class ReminderController extends Controller {
 
     public function setReminder() : void {
-        $this->validateFields([
+        $validation = $this->validator->validateFields([
             'guild_id',
             'name',
             'who',
             'deadline',
             'channel',
             'message'
-        ]);
+        ],$this->data);
+
+        if(!$validation)
+            $this->response->responseError("Invalid request fields");
 
         $repository = new ReminderRepository();
-        if(!$repository->addNewReminder($this->data)){
-            $this->responseError('DB error');
+        $resultData = $repository->addNewReminder($this->data);
+        if(!$resultData){
+            $this->response->responseError('DB error');
             die();
         }
-        $this->responseOk();
+        $this->response->responseOk($resultData);
     }
 
     public function getReminders() : void {
-        $this->validateFields([
+        $validation = $this->validator->validateFields([
             'guild_id',
-        ]);
+        ],$this->data);
+
+        if(!$validation)
+            $this->response->responseError("Invalid request fields");
 
         $repository = new ReminderRepository();
         $results = $repository->getReminder($this->data->guild_id);
@@ -51,33 +58,25 @@ class ReminderController extends Controller {
             'reminders' => $reminders
         ];
 
-        echo json_encode([
-            'code'      => '200',
-            'response'  => $response
-        ]);
+        $this->response->responseOk($response);
     }
 
+    public function deleteReminder() : void {
+        $validation = $this->validator->validateFields([
+            'guild_id', 'reminder_id'
+        ],$this->data);
 
-    private function validateFields(array $fields){
-        foreach($fields as $fieldname){
-            if(!isset($this->data->$fieldname)){
-                $this->responseError('Invalid request fields');
-                die();
-            }
+        if(!$validation)
+            $this->response->responseError("Invalid request fields");
+
+        $repository = new ReminderRepository();
+        $resultData = $repository->deleteReminder($this->data);
+
+        if(!$resultData){
+            $this->response->responseError('DB error');
+            die();
         }
+        $this->response->responseOk();
     }
 
-    private function responseError(string $error) : void {
-        echo json_encode([
-            'code'      => '400',
-            'response'  => $error
-        ]);
-    }
-
-    private function responseOk() : void {
-        echo json_encode([
-            'code'      => '200',
-            'response'  => 'ok'
-        ]);
-    }
 }

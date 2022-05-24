@@ -8,44 +8,18 @@ class RoomController extends Controller {
 
     public function getRoomData() {
 
-        $this->validateFields([
+        $validation = $this->validator->validateFields([
             'name'
-        ]);
+        ],$this->data);
 
+        if(!$validation)
+            $this->response->responseError("Invalid request fields");
+            
         $repository = new RoomRepository();
-        $resultRoomInfo = $repository->getRoomFromDB($this->data);
-        if(!$resultRoomInfo){
-            $this->responseError("Room not found");
-        }
-        else{
-            $response = [
-                "building" => $resultRoomInfo["building"],
-                "name" => $resultRoomInfo["name"],
-                "floor" => $resultRoomInfo["floor"],
-                "description" => $resultRoomInfo["description"],
-                "image_url" => $resultRoomInfo["image_url"]
-            ];
+        $response = $repository->getRoomFromDB($this->data);
+        if(!$response)
+            $this->response->responseError("Room not found");
 
-            echo json_encode([
-                'code'      => '200',
-                'response'  => $response
-            ]);
-        }
-    }
-
-    private function validateFields(array $fields){
-        foreach($fields as $fieldname){
-            if(!isset($this->data->$fieldname)){
-                $this->responseError('Invalid request fields');
-                die();
-            }
-        }
-    }
-
-    private function responseError(string $error) : void {
-        echo json_encode([
-            'code'      => '400',
-            'response'  => $error
-        ]);
+        $this->response->responseOk($response);
     }
 }

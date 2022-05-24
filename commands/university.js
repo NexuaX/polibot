@@ -58,7 +58,7 @@ async function commandHandler(message, args) {
             return;
         }
 
-        if (response.code !== "400") {
+        if (response.code === "400") {
             message.channel.send("Room not found!");
             return;
         }
@@ -77,6 +77,8 @@ async function commandHandler(message, args) {
 
         message.channel.send({embeds: [embed]});
 
+    } else {
+        message.channel.send(`Nieznana podkomenda \`${subcommand}\``);
     }
 
 }
