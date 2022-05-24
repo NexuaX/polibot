@@ -1,4 +1,3 @@
-const {MessageEmbed} = require("discord.js");
 
 module.exports = {
     name: 'roll',
@@ -13,7 +12,7 @@ module.exports = {
 
         switch(rollType) {
             case "user":
-                handleUserType(message, args)
+                handleUserType(message)
                 break;
             case "range":
                 handleRangeType(message, args)
@@ -28,17 +27,16 @@ module.exports = {
     }
 }
 
-async function handleUserType(message, args) {
-    const id = args[0]
-    if (!id){
-        message.reply({content: "Proszę podać grupę użytkownika", ephemeral: true});
+async function handleUserType(message) {
+    await message.guild.members.fetch()
+    const group = message.mentions.roles.first()
+    if (!group) {
+        message.reply({content: "Proszę podać grupę użytkownika", ephemeral: true})
         return
     }
 
-    const role = await message.guild.roles.fetch().get('963364915106680892').members;
-
-    console.log(role)
-    message.channel.send(role)
+    const groupMembers = group.members
+    message.reply({content: `Wylosowano użytkownika: ${groupMembers.random()}`})
 }
 
 function handleRangeType(message, args) {
@@ -54,7 +52,7 @@ function handleRangeType(message, args) {
     const min = Math.ceil(args[0]);
     const max = Math.floor(args[1]);
     const number = Math.floor(Math.random() * (max - min + 1)) + min
-    message.channel.send(`${number}`)
+    message.reply({content: `Wylosowano liczbe: ${number}`})
 }
 
 function handleElementType(message, args) {
@@ -64,7 +62,7 @@ function handleElementType(message, args) {
     }
 
     const item = args[Math.floor(Math.random() * args.length)];
-    message.channel.send(`${item}`)
+    message.reply({content: `Wylosowano element: ${item}`})
 }
 
 function isInt(value) {
