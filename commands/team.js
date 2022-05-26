@@ -1,9 +1,14 @@
 const { MessageEmbed } = require("discord.js");
 const { pfp, team } = require("../assets/urls.json");
+const {prefix} = require("../config.json");
 
 module.exports = {
     name: "team",
-    description: "wypisuje twórców bota",
+    description: "panel chwały",
+    details: "zostawiam wzmiankę o swoich twórcach\n\n" +
+        "ot co, jestem im wdzięczny za wszystko co potrafię!\n" +
+        "mam też swojego ulubieńca, ale to sekret",
+    usage: `\`${prefix} team\``,
     execute(message, args) {
         message.channel.sendTyping();
         const teammates = [

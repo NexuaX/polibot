@@ -1,11 +1,15 @@
 const {MessageEmbed} = require("discord.js");
 const imageUrls = require("../assets/urls.json");
 const fetch = require("node-fetch");
-const {backend} = require("../config.json");
+const {backend, prefix} = require("../config.json");
 
 module.exports = {
     name: "university",
-    description: "wyświetlam dane o kampusie i salach",
+    description: "pomoc geograficzna",
+    details: "mogę pomóc w znalezieniu sali, wskazać w którym budynku się znajduje " +
+        "oraz podać parę szczegółów, lub po prostu pokazać mapkę kampusu",
+    usage: `\`${prefix} university campus\`\n` +
+        `\`${prefix} university room <phrase>\`\n`,
     execute: commandHandler
 }
 

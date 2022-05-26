@@ -1,5 +1,5 @@
 const {MessageEmbed} = require("discord.js");
-const {backend} = require("../config.json");
+const {backend, prefix} = require("../config.json");
 const fetch = require("node-fetch");
 const client = require("../main");
 
@@ -9,7 +9,20 @@ const fruitEmoji = [
 
 module.exports = {
     name: 'setup',
-    description: "ustaw role i parametry serwera",
+    description: "ustawienia serwera (rocznik, grupy, starosta)",
+    details: "przeprowadzam podstawową konfigurację, która jest wymagana " +
+        "by niektóre inne systemy działały prawidłowo, na początku należy " +
+        "ustawić podstawowe dane o serwerze, potem można ustalić panel nadawania " +
+        "grupy oraz prosty mechanizm dodania starosty\n\n" +
+        "po wydaniu polecenia groups pojawi się panel z reakcjami, " +
+        "każda reakcja odpowiada innej grupie, student może sobie wybrac " +
+        "do któej należy, w każdym momencie może zmienić wybór odnaczają poprzenią\n\n" +
+        `np. \`${prefix} setup server Informatyka 2019/20 WIiT\`\n` +
+        `np. \`${prefix} setup chairman Janek\`\n` +
+        `np. \`${prefix} setup groups grupa1 grupa2 grupa3\`\n`,
+    usage: `\`${prefix} setup server <faculty> <year> <department>\`\n` +
+        `\`${prefix} setup chairman <username>\`\n` +
+        `\`${prefix} setup groups <groups ...>\`\n`,
     async execute(message, args) {
         if (args[1] === "chairman") {
 

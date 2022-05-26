@@ -1,11 +1,16 @@
 const {MessageEmbed} = require("discord.js");
+const {prefix} = require("../config.json");
 const pollReactions = [
     '🔴', '🟠', '🟡', '🟢', '🟣', '🟤', '⚪', '⚫',
 ];
 
 module.exports = {
     name: 'poll',
-    description: "Tworzy ankiete umozliwiajaca glosowanie",
+    description: "ankiety do głosowania",
+    details: "zapewnia możliwość przeprowadzenia czasowego głosowania na dany temat " +
+        "z podanymi opcjami (max 10) lub prostego tak/nie, po czasie wyświetla wynik\n\n" +
+        "np. `poll 'Czy chcemy dodatkowe zajęcia?'`\nlub `poll 'Kiedy egzamin z ***' | 21.06 | 22.06 ...`",
+    usage: `\`${prefix} poll '<temat>' [<opcje ...>]\``,
     async execute(message, args) {
 
         // usunięcie komendy z listy

@@ -1,10 +1,18 @@
-const {backend} = require('../config.json');
+const {backend, prefix} = require('../config.json');
 const fetch = require("node-fetch");
 
 module.exports = {
     name: 'reminder',
-    description: "pomagam przypomnieć o różnych sprawach",
-    usage: "name who when where(channel)",
+    description: "przypominam o ustalonych sprawach",
+    details: "system cyklicznego przypominania o dowolnych sprawach, " +
+        "w miarę możliwości przypominam wszystkim lub konkretnej grupie " +
+        "o danym wydarzeniu 3 razy (kolejno 7, 3, 1 dni przed)\n\n" +
+        "czas podajemy w formacie `yyyy-mm-ddThh:mm`\n" +
+        "wiadomość przypomnienia podaje się w następnej wiadomości (poproszę o nią)\n" +
+        "aby usunąć przypomnienie należy podać id, zwracane przy tworzeniu\n\n" +
+        `np. \`${prefix} reminder add kolowkium @grupa2 2022-04-25T14:45 #ogloszenia\``,
+    usage: `\`${prefix} reminder add <name> <@grupa|everyone> <deadline> <#channel>\`\n` +
+        `\`${prefix} reminder delete <id>\``,
     execute: commandHandler
 }
 

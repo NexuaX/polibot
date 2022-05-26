@@ -2,16 +2,27 @@ const fetch = require("node-fetch");
 const {JSDOM} = require("jsdom");
 const {MessageEmbed} = require("discord.js");
 const {scheduleIcon} = require("../assets/urls.json");
-const {backend} = require("../config.json");
+const {backend, prefix} = require("../config.json");
 
 const dayMapping = new Map([
     ["monday", "poniedziałek"],
-    ["tuesday", "wtorek"]
+    ["tuesday", "wtorek"],
+    ["wednesday", "środa"],
+    ["thursday", "czwartek"],
+    ["friday", "piątek"],
+    ["saturday", "sobota"],
+    ["sunday", "niedziela"]
 ]);
 
 module.exports = {
     name: "schedule",
-    description: "sprawdzam plan, wyświetlam",
+    description: "sprawdzam/wyświetlam plan",
+    details: "mogę sprawdzić ostatnią aktualizację planu na stronie wydziału " +
+        "oraz wyświetlić zapisany w bazie plan zajęć na dany dzień dla całej lub połowy grupy\n\n" +
+        `np. \`${prefix} schedule show monday grupa2\`\n` +
+        `lub \`${prefix} schedule show tuesday grupa2 2\``,
+    usage: `\`${prefix} schedule check\`\n` +
+        `\`${prefix} schedule show <monday|tuesday|...> <group> [<subgroup>]\``,
     execute: commandHandler
 }
 
@@ -22,7 +33,7 @@ async function commandHandler(message, args) {
 
     const subcommand = args[0];
 
-    if (subcommand === "newest") {
+    if (subcommand === "check") {
 
         const response = await fetch("https://it.pk.edu.pl/?page=rz").catch(() => null);
         if (!response) {

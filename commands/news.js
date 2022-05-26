@@ -1,13 +1,17 @@
 const fetch = require("node-fetch");
 const {JSDOM} = require("jsdom");
 const {MessageEmbed} = require("discord.js");
+const {prefix} = require("../config.json");
 
 let facultyNewsInterval = 0;
 let lastMessage;
 
 module.exports = {
     name: 'news',
-    description: "shows latest news",
+    description: "zczytuje wiadomości wydziałowe",
+    details: "moduł zczytujący automatycznie najnowsze wiadomości wydziałowe " +
+        "w interwale, można włączyć lub wyłączyć",
+    usage: `\`${prefix} news <on|off>\``,
     execute(message, args) {
 
         switch (args[1]) {

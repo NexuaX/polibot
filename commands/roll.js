@@ -1,7 +1,17 @@
+const {prefix} = require("../config.json");
 
 module.exports = {
     name: 'roll',
-    description: "Losuje osobe z grupy, liczbe z zakresu, element ze zbioru",
+    description: "losowanka liczby, elementu, osoby",
+    details: "pozwala rozwiązywać wiele konfliktów poprzez przysłowiowy rzut monetą, " +
+        "dostępne jest losowanie liczby z zakresu (inclusive), losowanie elementu z listy oraz " +
+        "losowanie osoby z podanej grupy (czyt. roli)\n\n" +
+        `np. \`${prefix} roll range 1 15\`\n` +
+        `lub \`${prefix} roll element 1 3 5 8 aa bb cc\`\n` +
+        `lub \`${prefix} roll user @grupa2\`\n`,
+    usage: `\`${prefix} roll range <from> <to>\`\n` +
+        `\`${prefix} roll element <list ...>\`` +
+        `\`${prefix} roll user <@group>\``,
     execute(message, args) {
 
         // usunięcie komendy z listy

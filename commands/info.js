@@ -1,12 +1,16 @@
 const {MessageEmbed} = require("discord.js");
 const imageUrls = require("../assets/urls.json");
 const fetch = require("node-fetch");
-const {backend} = require("../config.json");
+const {backend, prefix} = require("../config.json");
 const client = require("../main");
 
 module.exports = {
     name: "info",
-    description: "wyświetlam dane o serwerze i grupach",
+    description: "przedstawiam dane o serwerze i grupach",
+    details: "przedstawiam dane zapisane w bazie oraz statystyki (jeśli istnieją) " +
+        "na temat serwera lub jego grup i studentów",
+    usage: `\`${prefix} info <server|groups>\`\n` +
+        `\`${prefix} info group <@group>\``,
     execute: commandHandler
 }
 

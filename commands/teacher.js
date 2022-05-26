@@ -2,13 +2,19 @@ const {MessageEmbed, MessageActionRow, MessageButton} = require("discord.js");
 const fetch = require("node-fetch");
 const formData = require("form-data");
 const imageUrls = require("../assets/urls.json");
+const {prefix} = require("../config.json");
 
 let embeds = []
 let pages = {}
 
 module.exports = {
     name: "teacher",
-    description: "Wypisuje dane prowadzacego",
+    description: "wyświetlam dane prowadzących",
+    details: "wyszukuję w bazie politechniki prowadzących po wpisanej frazie, " +
+        "jeżeli zostanie naleziona więcej niż jedna osoba, aktywne zostaną przyciski " +
+        "paginacji aby kartkować wynik, przyciski znikają po czasie nieaktywności\n\n" +
+        `np. \`${prefix} teacher jerzy zaczek\``,
+    usage: `\`${prefix} teacher <phrase>\``,
     async execute(message, args) {
         const teacherName = args.slice(1).join(' ')
         if (!areArgsValid(args, message, teacherName)) return
