@@ -7,7 +7,7 @@ class ScheduleRepository extends Repository {
     public function getScheduleForGroup(object $data) {
 
         $query = $this->dbref->connect()->prepare(
-            "select c.name, type, r.name, time_from, time_to from schedule s
+            "select c.name name, type, r.name room, time_from, time_to from schedule s
             join courses c using(schedule_id)
             join rooms r using(room_id)
             where day = '$data->day' and \"group\" = '$data->group'

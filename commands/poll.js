@@ -113,7 +113,7 @@ module.exports = {
 
             const collector = sendMessage.createReactionCollector({
                 filter,
-                time: 10000
+                time: 10000, dispose: true
             });
 
             collector.on("collect", (collected) => {
@@ -121,6 +121,16 @@ module.exports = {
                 for (let i = 0; i < pollReactions.length; i++) {
                     if (pollReactions[i] === name) {
                         results[i] += 1;
+                        break;
+                    }
+                }
+            });
+
+            collector.on("remove", (collected) => {
+                const name = collected.emoji.name;
+                for (let i = 0; i < pollReactions.length; i++) {
+                    if (pollReactions[i] === name) {
+                        results[i] -= 1;
                         break;
                     }
                 }

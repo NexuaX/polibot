@@ -11,7 +11,7 @@ module.exports = {
     description: "zczytuje wiadomości wydziałowe",
     details: "moduł zczytujący automatycznie najnowsze wiadomości wydziałowe " +
         "w interwale, można włączyć lub wyłączyć",
-    usage: `\`${prefix} news <on|off>\``,
+    usage: `\`${prefix} news <on|off|status>\``,
     execute(message, args) {
 
         switch (args[1]) {
