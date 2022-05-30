@@ -2,6 +2,7 @@ import glob
 from flask import Flask
 import gensim
 import numpy as np
+import re
 from scipy import spatial
 
 global ml_model
@@ -44,10 +45,9 @@ def get_list_of_most_similar(user_command, bot_commands, model, threshold=0.7):
 def get_list_of_commands():
     list_of_commands = []
     path_of_commands = glob.glob("../commands/*.js")
-    #for i in path_of_commands:
-    #    temp = re.findall('[\w-]+\.', i)
-    #    list_of_commands.append(temp[0][0:-1])
-    list_of_commands = ['roll range', 'roll element', 'roll user', 'roll']
+    for i in path_of_commands:
+       temp = re.findall('[\w-]+\.', i)
+       list_of_commands.append(temp[0][0:-1])
     return list_of_commands
 
 

@@ -1,12 +1,12 @@
 const client = require("../main");
 const {prefix} = require("../config.json");
-const axios = require('axios');
+const fetch = require("node-fetch");
 
-client.on("messageCreate", message => {
+client.on("messageCreate", async message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     if (message.content.trim() === prefix.trim()) {
-        message.reply(`Aby poznać moje komendy napisz \`${prefix} help\``)
+        await message.reply(`Aby poznać moje komendy napisz \`${prefix} help\``)
         return;
     }
 
@@ -14,19 +14,59 @@ client.on("messageCreate", message => {
     const command = client.commands.get(args[0]);
 
     if (!command) {
-        axios.get('http://127.0.0.1:9090/prediction/' + args.slice(0,2).join(' '))
-          .then(res => {
-            const headerDate = res.headers && res.headers.date ? res.headers.date : 'no response date';
-            console.log('Status Code:', res.status);
-            console.log('Date in Response header:', headerDate);
+        const response = await fetch('http://127.0.0.1:9090/prediction/' + args[0])
+            .then(response => response.json())
+            .catch(() => "nlp error");
 
-            const commands = res.data;
-            console.log(commands);
-          })
-          .catch(err => {
-            console.log('Error: ', err.message);
-          });
-        message.reply({content: `Nieznana komenda \`${args[0]}\`\nNapisz \`${prefix} help\` aby skorzystać z pomocy`});
+        const result = await (async function () {
+            if (response !== "nlp error") {
+                console.log('Response:', response);
+                const prediction = Object.getOwnPropertyNames(response)[0] ?? null;
+
+                if (prediction) {
+                    const copyArgs = [...args];
+                    copyArgs[0] = prediction;
+                    const reply = await message.reply(`Czy chodziło o \`${copyArgs.join(" ")}\`?`);
+                    await reply.react("✅");
+                    await reply.react("❌");
+
+                    const collector = reply.createReactionCollector({
+                        time: 1000 * 30,
+                        filter: (reaction, user) => !user.bot,
+                        max: 1
+                    });
+
+                    let ok = false;
+
+                    collector.on("end", collected => {
+                        const reaction = collected.first();
+                        if (!reaction) return;
+                        if (reaction.emoji.name === "✅") {
+                            args[0] = copyArgs[0];
+                            ok = true;
+                        }
+                    });
+
+                    while (!collector.ended) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+
+                    return ok;
+                } else {
+                    return false;
+                }
+            } else {
+                console.log("nlp server error.");
+                return false;
+            }
+        })();
+
+        if (result) {
+            client.commands.get(args[0]).execute(message, args);
+        } else {
+            await message.reply({content: `Nieznana komenda \`${args[0]}\`\nNapisz \`${prefix} help\` aby skorzystać z pomocy`});
+        }
+
     } else {
         command.execute(message, args);
     }
