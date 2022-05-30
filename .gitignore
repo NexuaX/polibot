@@ -6,3 +6,4 @@ config.json
 /backend/vendor/*
 /backend/config.php
 /backend/composer.lock
+/backend/model_nlp/
