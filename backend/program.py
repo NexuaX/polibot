@@ -1,18 +1,13 @@
 import glob
 from flask import Flask
-import gensim
 import numpy as np
 import re
 from scipy import spatial
+from sklearn.feature_extraction.text import CountVectorizer
 
 global ml_model
 
 app = Flask(__name__)
-
-
-def load_model():
-    model = gensim.models.KeyedVectors.load("model_nlp/google.model")
-    return model
 
 
 def get_average_vector(sentence, model, vector_size=300):
@@ -26,20 +21,27 @@ def get_average_vector(sentence, model, vector_size=300):
     return temp
 
 
-def get_list_of_most_similar(user_command, bot_commands, model, threshold=0.7):
-    most_similar_list = {}
+def get_list_of_most_similar(user_command, bot_commands, threshold=0.4):
     most_similar_list_final = {}
-    user_vector = get_average_vector(user_command, model)
-    for command in bot_commands:
-        bot_command = get_average_vector(command, model)
-        similarity = spatial.distance.cosine(user_vector, bot_command)
-        if similarity < threshold:
-            most_similar_list[command] = similarity
+    most_similar_list = count_vectorizer(user_command, bot_commands, threshold=threshold)
     most_similar_list_sorted = sorted(most_similar_list.items(), key=lambda x: x[1])
     for i in most_similar_list_sorted:
         most_similar_list_final[i[0]] = i[1]
     print(most_similar_list_final)
     return most_similar_list_final
+
+
+def count_vectorizer(user_command, bot_commands, threshold):
+    most_similar_list = {}
+    vectorizer = CountVectorizer(analyzer='char')
+    vectorizer.fit(bot_commands)
+    user_command = vectorizer.transform([user_command]).toarray()
+    for command in bot_commands:
+        bot_command = vectorizer.transform([command]).toarray()
+        distance = spatial.distance.cosine(user_command, bot_command)
+        if distance < threshold:
+            most_similar_list[command] = distance
+    return most_similar_list
 
 
 def get_list_of_commands():
@@ -58,13 +60,12 @@ def index():
 
 @app.route('/prediction/<command>')
 def get_prediction(command=''):
-    global ml_model
     bot_commands = get_list_of_commands()
-    list_of_command = get_list_of_most_similar(user_command=command, bot_commands=bot_commands, model=ml_model)
+    list_of_command = get_list_of_most_similar(user_command=command, bot_commands=bot_commands)
     return list_of_command
 
 
 if __name__ == '__main__':
-    ml_model = load_model()
     app.run(port=9090)
+    app.config['JSON_SORT_KEYS'] = False
 
